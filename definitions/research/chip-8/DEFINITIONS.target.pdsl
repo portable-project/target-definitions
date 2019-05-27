@@ -1,0 +1,206 @@
+architecture chip8 {
+	registers:
+	
+		/*----------------------Registers----------------------*/
+		storage V0_S[8];
+		storage V1_S[8];
+		storage V2_S[8];
+		storage V3_S[8];
+		storage V4_S[8];
+		storage V5_S[8];
+		storage V6_S[8];
+		storage V7_S[8];
+		storage V8_S[8];
+		storage V9_S[8];
+		storage VA_S[8];
+		storage VB_S[8];
+		storage VC_S[8];
+		storage VD_S[8];
+		storage VE_S[8];
+		storage VF_S[8];
+		
+		storage I_S[16];
+		
+		storage DT_S[8];
+		storage ST_S[8];
+		
+		storage PC_S[16];
+		storage SP_S[16];
+		
+		/*----------------------Views----------------------*/
+		view V0 = V0_S;
+		view V1 = V1_S;
+		view V2 = V2_S;
+		view V3 = V3_S;
+		view V4 = V4_S;
+		view V5 = V5_S;
+		view V6 = V6_S;
+		view V7 = V7_S;
+		view V8 = V8_S;
+		view V9 = V9_S;
+		view VA = VA_S;
+		view VB = VB_S;
+		view VC = VC_S;
+		view VD = VD_S;
+		view VE = VE_S;
+		view VF = VF_S;
+		
+		view I = I_S[0..11];
+		
+		view DT = DT_S;
+		view ST = ST_S;
+		
+		view PC = PC_S[0..11];
+		view SP = SP_S[0..11];
+		
+	memory: 
+			
+			range ram [0x000..0xfff] {
+				cell = 8;
+				endianess = big-endian;
+				granularity = 0;
+			}
+			
+	instructions: 
+	
+		encode n4 field = immediate[4] data;
+		encode n8 field = immediate[8] data;
+		encode n12 field = immediate[12] data;
+	
+		encode reg_as_param field = register {
+			V0 = 0000,
+			V1 = 0001,
+			V2 = 0010,
+			V3 = 0011,
+			V4 = 0100,
+			V5 = 0101,
+			V6 = 0110,
+			V7 = 0111,
+			V8 = 1000,
+			V9 = 1001,
+			VA = 1010,
+			VB = 1011,
+			VC = 1100,
+			VD = 1101,
+			VE = 1110,
+			VF = 1111
+		};
+		
+		instruction cls = {00000000, 11100000};
+		instruction ret = {00000000, 11101110};
+		
+		instruction jp = {0001, n12 as addr};
+		instruction call = {0010, n12 as addr};
+		
+		instruction se_byte = {0011, reg_as_param as vx, n8 as byte};
+		
+		instruction sne_byte = {0100, reg_as_param as vx, n8 as byte};
+		
+		instruction se_vx_vy = {0101, reg_as_param as vx, reg_as_param as vy, 0000};
+		
+		instruction ld_vx_byte = {0110, reg_as_param as vx, n8 as byte};
+		
+		instruction add_vx_byte = {0111, reg_as_param as vx, n8 as byte};
+		
+		instruction ld_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0000};
+		instruction or_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0001};
+		instruction and_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0010};
+		instruction xor_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0011};
+		instruction add_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0100};
+		instruction sub_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0101};
+		instruction shr_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0110};
+		instruction subn_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 0111};
+		instruction shl_vx_vy = {1000, reg_as_param as vx, reg_as_param as vy, 1110};
+		
+		instruction sne_vx_vy = {1001, reg_as_param as vx, reg_as_param as vy, 0000};
+		
+		instruction ld_i_addr = {1010, n12 as addr};
+		
+		instruction jp_v0_addr = {1011, n12 as addr};
+		
+		instruction rnd_vx_byte = {1100, reg_as_param as vx, n8 as byte};
+		
+		instruction drw = {1101, reg_as_param as vx, reg_as_param as vy, n4 as nibble};
+		
+		instruction skp = {1110, reg_as_param as vx, 10011110};
+		
+		instruction sknp = {1110, reg_as_param as vx, 10100001};
+		
+		instruction ld_vx_dt = {1111, reg_as_param as vx, 00000111};
+		instruction ld_vx_k = {1111, reg_as_param as vx, 00001010};
+		instruction ld_dt_vx = {1111, reg_as_param as vx, 00010101};
+		instruction ld_st_vx = {1111, reg_as_param as vx, 00011000};
+		instruction add_i_vx = {1111, reg_as_param as vx, 00011110};
+		instruction ld_f_vx = {1111, reg_as_param as vx, 00101001};
+		instruction ld_b_vx = {1111, reg_as_param as vx, 00110011};
+		instruction ld_i_vx = {1111, reg_as_param as vx, 01010101};
+		instruction ld_vx_i = {1111, reg_as_param as vx, 01100101};
+	
+	mnemonics:
+		
+		format one_param is "{1}";
+		format two_params is "{1}, {2}";
+		format three_params is "{1}, {2}, {3}";
+		format i_param is "I, {1}";
+		format square_i_param is "[I], {1}";
+		format param_square_i is "{1}, [I]";
+		format f_param is "F, {1}";
+		format b_param is "B, {1}";
+		format v0_param is "V0, {1}";
+		format param_dt is "{1}, DT";
+		format param_k is "{1}, K";
+		format dt_param is "DT, {1}";
+		format st_param is "ST, {1}";
+		
+		mnemonic CLS for cls();
+		mnemonic RET for ret();
+		
+		mnemonic JP for jp(addr) one_param;
+		mnemonic JP for jp_v0_addr(addr) v0_param;
+		
+		mnemonic CALL for call(addr) one_param;
+		
+		mnemonic SE for se_byte(vx, byte) two_params;
+		mnemonic SE for se_vx_vy(vx, vy) two_params;
+		
+		mnemonic SNE for sne_byte(vx, byte) two_params;
+		mnemonic SNE for sne_vx_vy(vx, vy) two_params;
+		
+		mnemonic LD for ld_vx_byte(vx, byte) two_params;
+		mnemonic LD for ld_vx_vy(vx, vy) two_params;
+		mnemonic LD for ld_i_addr(addr) i_param;
+		mnemonic LD	for ld_vx_dt(vx) param_dt;
+		mnemonic LD for ld_vx_k(vx) param_k;
+		mnemonic LD for ld_dt_vx(vx) dt_param;
+		mnemonic LD for ld_st_vx(vx) st_param;
+		mnemonic LD for ld_f_vx(vx) f_param;
+		mnemonic LD for ld_b_vx(vx) b_param;
+		mnemonic LD for ld_i_vx(vx) square_i_param;
+		mnemonic LD for ld_vx_i(vx) param_square_i;
+		
+		mnemonic ADD for add_vx_byte(vx, byte) two_params;
+		mnemonic ADD for add_vx_vy(vx, vy) two_params;
+		mnemonic ADD for add_i_vx(vx) i_param;
+		
+		mnemonic SUB for sub_vx_vy(vx, vy) two_params;
+		
+		mnemonic SUBN for subn_vx_vy(vx, vy) two_params;
+		
+		mnemonic OR for or_vx_vy(vx, vy) two_params;
+		
+		mnemonic AND for and_vx_vy(vx, vy) two_params;
+		
+		mnemonic XOR for xor_vx_vy(vx, vy) two_params;
+		
+		mnemonic SHR for shr_vx_vy(vx, vy) two_params;
+		
+		mnemonic SHL for shl_vx_vy(vx, vy) two_params;
+		
+		mnemonic RND for rnd_vx_byte(vx, byte) two_params;
+		
+		mnemonic DRW for drw(vx, vy, nibble) three_params;
+		
+		mnemonic SKP for skp(vx) one_param;
+		mnemonic SKNP for sknp(vx) one_param;
+		
+}
