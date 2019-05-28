@@ -1,0 +1,515 @@
+architecture POWER{
+	registers:
+
+	/*===========================BRANCH FASILITY===========================*/
+		storage CR[32];
+		view cr0 = CR[0..3];
+		view cr1 = CR[4..7];
+		view cr2 = CR[8..11];
+		view cr3 = CR[12..15];
+		view cr4 = CR[16..19];
+		view cr5 = CR[20..23];
+		view cr6 = CR[24..27];
+		view cr7 = CR[28..31];
+
+		view lt = CR[0];
+		view gt = CR[1];
+		view eq = CR[2];
+		view so = CR[3];
+		view un = CR[3];
+
+		storage LR[64];
+		storage CTR[64];
+
+		storage TAR[64];
+		view TAR_EA = TAR[0..61];
+	/*===========================FIXED_POINT FASILITY===========================*/
+		storage GPR0_S[64];
+		storage GPR1_S[64];
+		storage GPR2_S[64];
+		storage GPR3_S[64];
+		storage GPR4_S[64];
+		storage GPR5_S[64];
+		storage GPR6_S[64];
+		storage GPR7_S[64];
+		storage GPR8_S[64];
+		storage GPR9_S[64];
+		storage GPR10_S[64];
+		storage GPR11_S[64];
+		storage GPR12_S[64];
+		storage GPR13_S[64];
+		storage GPR14_S[64];
+		storage GPR15_S[64];
+		storage GPR16_S[64];
+		storage GPR17_S[64];
+		storage GPR18_S[64];
+		storage GPR19_S[64];
+		storage GPR20_S[64];
+		storage GPR21_S[64];
+		storage GPR22_S[64];
+		storage GPR23_S[64];
+		storage GPR24_S[64];
+		storage GPR25_S[64];
+		storage GPR26_S[64];
+		storage GPR27_S[64];
+		storage GPR28_S[64];
+		storage GPR29_S[64];
+		storage GPR30_S[64];
+		storage GPR31_S[64];
+
+		view gpr0 = GPR0_S;
+		view gpr1 = GPR1_S;
+		view gpr2 = GPR2_S;
+		view gpr3 = GPR3_S;
+		view gpr4 = GPR4_S;
+		view gpr5 = GPR5_S;
+		view gpr6 = GPR6_S;
+		view gpr7 = GPR7_S;
+		view gpr8 = GPR8_S;
+		view gpr9 = GPR9_S;
+		view gpr10 = GPR10_S;
+		view gpr11 = GPR11_S;
+		view gpr12 = GPR12_S;
+		view gpr13 = GPR13_S;
+		view gpr14 = GPR14_S;
+		view gpr15 = GPR15_S;
+		view gpr16 = GPR16_S;
+		view gpr17 = GPR17_S;
+		view gpr18 = GPR18_S;
+		view gpr19 = GPR19_S;
+		view gpr20 = GPR20_S;
+		view gpr21 = GPR21_S;
+		view gpr22 = GPR22_S;
+		view gpr23 = GPR23_S;
+		view gpr24 = GPR24_S;
+		view gpr25 = GPR25_S;
+		view gpr26 = GPR26_S;
+		view gpr27 = GPR27_S;
+		view gpr28 = GPR28_S;
+		view gpr29 = GPR29_S;
+		view gpr30 = GPR30_S;
+		view gpr31 = GPR31_S;
+
+		storage XER[64];
+		view SO = XER[32];
+		view OV = XER[33];
+		view CA = XER[34];
+		view OV32 = XER[44];
+		view CA32 = XER[45];
+
+		storage VRSAVE[32];
+
+		storage LMRR[64];
+		view Base_EA = LMRR[0..38];
+		view Size = LMRR[60..63];
+
+		storage LMSER[64];
+
+
+	memory:
+
+	/* Адрес буфера*/
+
+	/*	range BHRB []{
+			cell = 64;
+			endianess = ;
+			granularity = ;
+		}
+	*/
+
+
+	instructions:
+
+		encode CR_fields field = register {
+			cr0 = 000,
+			cr1 = 001,
+			cr2 = 010,
+			cr3 = 011,
+			cr4 = 100,
+			cr5 = 101,
+			cr6 = 110,
+			cr7 = 111
+		};
+
+		encode CR_field field = register {
+			lt = 00,
+			gt = 01,
+			eq = 10,
+			so = 11,
+			un = 11
+		};
+
+		encode GPR field = register {
+			gpr0 	= 00000,
+			gpr1 	= 00001,
+			gpr2 	= 00010,
+			gpr3 	= 00011,
+			gpr4 	= 00100,
+			gpr5 	= 00101,
+			gpr6 	= 00110,
+			gpr7 	= 00111,
+			gpr8 	= 01000,
+			gpr9 	= 01001,
+			gpr10 	= 01010,
+			gpr11 	= 01011,
+			gpr12 	= 01100,
+			gpr13 	= 01101,
+			gpr14 	= 01110,
+			gpr15 	= 01111,
+			gpr16 	= 10000,
+			gpr17 	= 10001,
+			gpr18 	= 10010,
+			gpr19 	= 10011,
+			gpr20 	= 10100,
+			gpr21 	= 10101,
+			gpr22 	= 10110,
+			gpr23 	= 10111,
+			gpr24 	= 11000,
+			gpr25 	= 11001,
+			gpr26 	= 11010,
+			gpr27 	= 11011,
+			gpr28 	= 11100,
+			gpr29 	= 11101,
+			gpr30 	= 11110,
+			gpr31 	= 11111
+		};
+		
+		encode imm24 field = immediate[24]; 
+		encode imm16 field = immediate[16];
+		encode imm14 field = immediate[14];
+		encode imm10 field = immediate[10];
+		encode imm7 field = immediate[7];
+		encode imm5 field = immediate[5];
+		encode imm3 field = immediate[3];
+		encode imm2 field = immediate[2];
+		encode imm1 field = immediate[1];
+
+		/*rsv - reserved field (needs to other variant of bits, when cases will be fix)*/
+		encode rsvd5 field = cases {
+			bits0 = 00000,
+			bits1 = 00001
+			/*...*/
+		};
+		encode rsvd4 field = cases {
+			bits0 = 0000,
+			bits1 = 0001
+			/*...*/
+		};
+		encode rsvd3 field = cases {
+			bits0 = 000,
+			bits1 = 001
+			/*...*/
+		};
+		encode rsvd2 field = cases {
+			bits0 = 00,
+			bits1 = 01
+			/*...*/
+		};
+		encode rsvd1 field = cases {
+			bits0 = 0,
+			bits1 = 1
+		};
+
+		encode A-form sequence = alternatives{ /*?*/
+			frt_rfb  		= {imm5 as FRT,	rsvd5.bits0,	imm5 as FRB, 	rsvd5.bits0	},
+			frt_fra_frc 	= {imm5 as FRT,	imm5 as FRA,	rsvd5.bits0,	imm5 as FRC	},
+			frt_fra_frb  	= {imm5 as FRT,	imm5 as FRA,	imm5 as FRB, 	rsvd5.bits0	},
+			frt_fra_frb_frc = {imm5 as FRT,	imm5 as FRA,	imm5 as FRB,	imm5 as FRC	},
+			rt_ra_rb_dc  	= {imm5 as RT,	imm5 as RA,		imm5 as RB,		imm5 as BC 	}			
+		};
+
+		encode B-form sequence = {imm5 as BO, imm5 as BI, imm14 as BD};
+
+		encode D-form sequence = alternatives { /*?*/
+			bf_l_ra_si 	= {imm3 as BF, rsvd1.bits0, imm1 as L, 	imm5 as RA, imm16 as SI	},
+			bf_l_ra_ui 	= {imm3 as BF, rsvd1.bits0, imm1 as L, 	imm5 as RA, imm16 as UI	},
+			frs_ra_d 	= {imm5 as FRS, 						imm5 as RA, imm16 as D	},
+			frt_ra_d 	= {imm5 as FRT, 						imm5 as RA, imm16 as D	},
+			rs_ra_d 	= {imm5 as RS, 							imm5 as RA, imm16 as D	},
+			rs_ra_ui 	= {imm5 as RS, 							imm5 as RA, imm16 as UI	},
+			rt_ra_d 	= {imm5 as RT, 							imm5 as RA, imm16 as D	},
+			rt_ra_si	= {imm5 as RT, 							imm5 as RA, imm16 as SI	},
+			to_ra_si 	= {imm5 as TO, 							imm5 as RA, imm16 as SI	}
+		};
+
+		encode DX-form sequence = {imm5 as RT, imm5 as d1, imm10 as d0, 00010, imm1 as d2};
+
+		encode I-form sequence = {imm24 as LI};
+
+/*		encode I-form sequence = alternatives{
+			b = {imm24 as LI, 00 } ,
+			ba = {imm24 as LI, 10}, 
+			bl = {imm24 as LI, 01},
+			bla = {imm24 as LI, 11}
+			
+		};
+
+		encode end sequence = alternatives{
+			b = { 00 } ,
+			ba = {10}, 
+			bl = {01},
+			bla = {11}
+		};
+*/
+
+	/*===========================BRANCH FASILITY===========================*/
+		/*Branch Instructions*/
+		instruction b 	= {010 010, sequence I-form, 0, 0}; 		
+		instruction ba 	= {010 010, sequence I-form, 1, 0}; 
+		instruction bl 	= {010 010, sequence I-form, 0, 1}; 
+		instruction bla = {010 010, sequence I-form, 1, 1}; 
+
+		/*? однобитовые поля, которые отвечают за мнемонику команды может не стоит прописывать явно. 
+		Нужно ли писать несколько вариантов инструкций когда можно использовать один и только в мнемониках расписать это*/
+
+		instruction bc		= {010 000, sequence B-form, 0, 0};
+		instruction bca		= {010 000, sequence B-form, 1, 0};
+		instruction bcl		= {010 000, sequence B-form, 0, 1};
+		instruction bcla	= {010 000, sequence B-form, 1, 1};
+
+		instruction bclr_1	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, imm2 as BH, 00001 00000, 0};
+		instruction bclr_2	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, 00, 		 00001 00000, 0};
+		instruction bclrl_1	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, imm2 as BH, 00001 00000, 1};
+		instruction bclrl_2	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, 00, 		 00001 00000, 1};
+
+		instruction bcctr_1	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, imm2 as BH, 100001 0000, 0};
+		instruction bcctr_2	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, 00, 		 100001 0000, 0};
+		instruction bcctrl_1	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, imm2 as BH, 100001 0000, 1};
+		instruction bcctrl_2	= {010 011, imm5 as BO, imm5 as BI, rsvd3.bits0, 00, 		 100001 0000, 1};
+
+
+		instruction bctar	= {010011, imm5 as BO, imm5 as BI, rsvd3.bits0, imm2 as BH, 10001 10000, 0};
+		instruction bctarl	= {010011, imm5 as BO, imm5 as BI, rsvd3.bits0, imm2 as BH, 10001 10000, 1};
+
+		/*Condition Register Instructions*/
+			/*Logical*/
+		instruction crand	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 01000 00001, rsvd1.bits0};
+		instruction crnand	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 00111 00001, rsvd1.bits0};
+		instruction cror	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 01110 00001, rsvd1.bits0};
+		instruction crxor	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 00110 00001, rsvd1.bits0};
+		instruction crnor	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 00001 00001, rsvd1.bits0};
+		instruction creqv	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 01001 00001, rsvd1.bits0};
+		instruction crandc	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 00100 00001, rsvd1.bits0};
+		instruction crorc	= {010 011, imm5 as BT, imm5 as BA, imm5 as BB, 01101 00001, rsvd1.bits0};
+			/*Field*/
+		instruction mcrf	= {010 011, imm3 as BF, rsvd2.bits0, imm3 as BFA, rsvd2.bits0, rsvd5.bits0, 00000 00000, rsvd1.bits0};
+
+		/*System Call Instructions*/
+		instruction sc	= {010 001, rsvd5.bits0, rsvd5.bits0, rsvd4.bits0, imm7 as LEV, rsvd3.bits0, 1, rsvd1.bits0};
+		instruction scv	= {010 001, rsvd5.bits0, rsvd5.bits0, rsvd4.bits0, imm7 as LEV, rsvd3.bits0, 0, 1};
+
+		/*Branch History Rolling Buffer Instructions*/
+		instruction clrbhrb = {100 000, rsvd5.bits0, 	rsvd5.bits0, rsvd5.bits0,	01101 01110, rsvd1.bits0};
+		instruction mfbhrbe = {100 000, imm5 as RT, 	imm10 as BHRBE,				01001 01110, rsvd1.bits0};
+
+		/*===========================FIXED_POINT FASILITY===========================*/
+		/*Load Instructions*/
+		instruction lbz 	= {100 010, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lbzu	= {100 011, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lhz		= {101 000, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lhzu	= {101 001, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lha		= {101 010, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lhau	= {101 011, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lwz		= {100 000, imm5 as RT, imm5 as RA, imm16 as D};
+		instruction lwzu	= {100 001, imm5 as RT, imm5 as RA, imm16 as D};
+
+		instruction lbzx	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 00 0101 0111, rsvd1.bits0};
+		instruction lbzux	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 00 0111 0111, rsvd1.bits0};
+		instruction lhzx	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0001 0111, rsvd1.bits0};
+		instruction lhzux	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0100 1011, rsvd1.bits0};
+		instruction lhax	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0101 0111, rsvd1.bits0};
+		instruction lhaux	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0111 0111, rsvd1.bits0};
+		instruction lwzx	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 00 0001 0111, rsvd1.bits0};
+		instruction lwzux	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 00 0011 0111, rsvd1.bits0};
+
+			/*64-bit Load Instructions*/
+		instruction lwa		= {111 010, imm5 as RT, imm5 as RA, imm14 as DS, 10};
+		instruction ld		= {111 010, imm5 as RT, imm5 as RA, imm14 as DS, 00};
+		instruction ldu		= {111 010, imm5 as RT, imm5 as RA, imm14 as DS, 01};
+
+		instruction lwax	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0101 0101, rsvd1.bits0};
+		instruction lwaux	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0111 0101, rsvd1.bits0};
+		instruction ldx		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 00 0001 0101, rsvd1.bits0};
+		instruction ldux	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 00 0011 0101, rsvd1.bits0};
+
+		instruction ldmx	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0011 0101, rsvd1.bits0};
+
+		/*Store Instructions*/
+		instruction stb 	= {100 110, imm5 as RS, imm5 as RA, imm16 as D};
+		instruction stbu 	= {100 111, imm5 as RS, imm5 as RA, imm16 as D};
+		instruction sth 	= {101 100, imm5 as RS, imm5 as RA, imm16 as D};
+		instruction sthu 	= {101 101, imm5 as RS, imm5 as RA, imm16 as D};
+		instruction stw 	= {100 100, imm5 as RS, imm5 as RA, imm16 as D};
+		instruction stwu 	= {100 101, imm5 as RS, imm5 as RA, imm16 as D};
+
+		instruction stbx	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 00 1101 0111, rsvd1.bits0};
+		instruction stbux	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 00 1111 0111, rsvd1.bits0};
+		instruction sthx	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 01 1001 0111, rsvd1.bits0};
+		instruction sthux	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 01 1011 0111, rsvd1.bits0};
+		instruction stwx	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 00 1001 0111, rsvd1.bits0};
+		instruction stwux	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 00 1011 0111, rsvd1.bits0};
+		
+			/*64-bit Store Instructions*/
+		instruction std		= {111 110, imm5 as RS, imm5 as RA, imm14 as DS, 00};
+		instruction stdu	= {111 110, imm5 as RS, imm5 as RA, imm14 as DS, 01};
+
+		instruction stdx	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 00 1001 0101, rsvd1.bits0};
+		instruction stdux	= {011 111, imm5 as RS, imm5 as RA, imm5 as RB, 00 1011 0101, rsvd1.bits0};
+
+		/*Load and Store Quadword Instructions*/
+		/*Load and Store with Byte Reversal Instructions*/
+			/*64-Bit Load and Store with Byte Reversal Instructions*/
+		/*Load and Store Multiple Instructions*/
+		/*Move Assist Instructions*/
+		/*Other Instructions*/
+		/*Arithmetic Instructions*/
+		instruction addi 	= {001 110, imm5 as RT, imm5 as RA, imm16 as SI};
+		instruction addis	= {001 111, imm5 as RT, imm5 as RA, imm16 as SI};
+		instruction addpcis = {010 011, sequence DX-form};
+
+		instruction add			= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 0000 1010, 0};
+		instruction add_pt		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 0000 1010, 1}; /*?*/
+		instruction addo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 0000 1010, 0};
+		instruction addo_pt		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 0000 1010, 1}; /*?*/
+
+		instruction subf		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 0010 1000, 0};
+		instruction subf_pt		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 0010 1000, 1}; /*?*/
+		instruction subfo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 0010 1000, 0};
+		instruction subfo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 0010 1000, 1}; /*?*/
+
+		instruction subfic	= {001 000, imm5 as RT, imm5 as RA, imm16 as SI};
+
+		instruction addc		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 0000 1010, 0};
+		instruction addc_pt 	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 0000 1010, 1}; /*?*/ /*addc.*/
+		instruction addco		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 0000 1010, 0};
+		instruction addco_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 0000 1010, 1}; /*?*/ /*addco.*/
+
+		instruction subfc		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 0000 0100, 0};
+		instruction subfc_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 0000 0100, 1}; /*?*/ /*subfc.*/
+		instruction subfco		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 0000 0100, 0};
+		instruction subfco_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 0000 0100, 1}; /*?*/ /*subfco.*/	
+
+		instruction adde		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 1000 1010, 0};
+		instruction adde_pt		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 1000 1010, 1}; /*?*/ /*adde.*/
+		instruction addeo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 1000 1010, 0};
+		instruction addeo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 1000 1010, 1}; /*?*/ /*addeo.*/
+
+		instruction subfe		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 1000 1000, 0};
+		instruction subfe_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 1000 1000, 1}; /*?*/ /*subfe.*/
+		instruction subfeo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 1000 1000, 0};
+		instruction subfeo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 1000 1000, 1}; /*?*/ /*subfeo.*/
+
+		instruction mulli 		= {000 111, imm5 as RT, imm5 as RA, imm16 as SI};
+
+		instruction mullw		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 1110 1011, 0};
+		instruction mullw_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 0 1110 1011, 1}; /*?*/ /*mullw.*/
+		instruction mullwo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 1110 1011, 0};
+		instruction mullwo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 0 1110 1011, 1}; /*?*/ /*mullwo.*/
+		
+		instruction mulhw		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, rsvd1.bits0, 0 0100 1011, 0};
+		instruction mulhw_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, rsvd1.bits0, 0 0100 1011, 1}; /*?*/ /*mulhw.*/
+
+		instruction mulhwu		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, rsvd1.bits0, 0 0000 1011, 0};
+		instruction mulhwu_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, rsvd1.bits0, 0 0000 1011, 1}; /*?*/ /*mulhwu.*/
+
+		instruction divw		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1110 1011, 0};
+		instruction divw_pt		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1110 1011, 1}; /*?*/ /*divw.*/
+		instruction divwo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1110 1011, 0};
+		instruction divwo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1110 1011, 1}; /*?*/ /*divwo.*/
+
+		instruction divwu		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1100 1011, 0};
+		instruction divwu_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1100 1011, 1}; /*?*/ /*divwu.*/
+		instruction divwuo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1100 1011, 0};
+		instruction divwuo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1100 1011, 1}; /*?*/ /*divwuo.*/	
+
+		instruction modsw	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 11 0000 1011, rsvd1.bits0};
+		instruction moduw	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 01 0000 1011, rsvd1.bits0};
+		
+		
+		instruction divwe		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1010 1011, 0};
+		instruction divwe_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1010 1011, 1}; /*?*/ /*divw.*/
+		instruction divweo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1010 1011, 0};
+		instruction divweo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1010 1011, 1}; /*?*/ /*divwo.*/
+
+		instruction divweu		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1000 1011, 0};
+		instruction divweu_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 0, 1 1000 1011, 1}; /*?*/ /*divwu.*/
+		instruction divweuo		= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1000 1011, 0};
+		instruction divweuo_pt	= {011 111, imm5 as RT, imm5 as RA, imm5 as RB, 1, 1 1000 1011, 1}; /*?*/ /*divwuo.*/
+
+		instruction darn	= {011 111, imm5 as RT, rsvd3.bits0, imm2 as L, rsvd5.bits0, 10 1111 0011, rsvd1.bits0};
+
+			/*64-bit Arithmetic Instructions*/
+		/*Compare Instructions*/	
+		/*Trap Instructions*/
+			/*64-bit Fixed-Point Trap Instructions*/
+		/*Select*/
+		/*Logical Instructions*/
+			/*64-bit Logical Instructions*/
+		/*Rotate Instructions*/
+			/*64-bit Rotate Instructions*/
+		/*Shift Instructions*/
+			/*64-bit Shift Instructions*/
+		/*Binary Coded Decimal (BCD) Assist Instructions*/
+		/*Move To/From Vector-Scalar Register Instructions*/
+		/*Move To/From System Register Instructions*/
+
+		/*===========================FLOATING_POINT FASILITY===========================*/
+
+		/*Load Instructions*/
+		/*Store Instructions*/
+		/*Load and Store Double Pair Instructions*/
+		/*Move Instructions*/
+		/*Arithmetic Instructions*/
+			/*Elementary Arithmetic Instructions*/
+			/*Multiply-Add Instructions*/
+		/*Rounding and Conversion Instructions*/
+
+
+
+	mnemonics:
+		format I is "{1}";
+		format B is "{1},{2},{3}";
+		format XL_2 is "{1},{2}";
+		format XL_3 is "{1},{2},{3}";
+
+
+		mnemonic b for b (LI) I;
+		mnemonic ba for ba (LI) I;
+		mnemonic bl for bl (LI) I;
+		mnemonic bla for bla (LI) I;
+
+		mnemonic bc for bc (BO, BI, BD) B;
+		mnemonic bca for bca (BO, BI, BD) B;
+		mnemonic bcl for bcl (BO, BI, BD) B;
+		mnemonic bcla for bcla (BO, BI, BD) B;
+
+
+		mnemonic bclr 	for bclr_1 (BO, BI, BH) XL_3;
+		mnemonic bclr 	for bclr_2 (BO, BI) XL_2;
+		mnemonic bclrl 	for bclrl_1 (BO, BI, BH) XL_3;
+		mnemonic bclrl 	for bclrl_2 (BO, BI) XL_2;
+		mnemonic bcctr 	for bcctr_1 (BO, BI, BH) XL_3;
+		mnemonic bcctr 	for bcctr_2 (BO, BI) XL_2;
+		mnemonic bcctrl for bcctrl_1 (BO, BI, BH) XL_3;
+		mnemonic bcctrl for bcctrl_2 (BO, BI) XL_2;
+
+		mnemonic bctar for bctar (BO, BI, BH) XL_3;
+		mnemonic bctarl for bctarl (BO, BI, BH) XL_3;
+
+		mnemonic crand for crand (BT, BA, BB) XL_3;
+		mnemonic crnand for crnand (BT, BA, BB) XL_3;
+		mnemonic crandc for crandc (BT, BA, BB) XL_3;
+		
+		mnemonic cror for cror (BT, BA, BB) XL_3;
+		mnemonic crxor for crxor (BT, BA, BB) XL_3;
+		mnemonic crnor for crnor (BT, BA, BB) XL_3;
+		mnemonic crorc for crorc (BT, BA, BB) XL_3;
+
+		mnemonic creqv for creqv (BT, BA, BB) XL_3;
+
+		mnemonic mcrf for mcrf (BF, BFA) XL_2;
+
+
+
+
+}
