@@ -1,0 +1,953 @@
+architecture MIPS32
+{
+	registers:
+		storage ff0[32];
+		storage ff1[32];
+		storage ff2[32];
+		storage ff3[32];
+		storage ff4[32];
+		storage ff5[32];
+		storage ff6[32];
+		storage ff7[32];
+		storage ff8[32];
+		storage ff9[32];
+		storage ff10[32];
+		storage ff11[32];
+		storage ff12[32];
+		storage ff13[32];
+		storage ff14[32];
+		storage ff15[32];
+		storage ff16[32];
+		storage ff17[32];
+		storage ff18[32];
+		storage ff19[32];
+		storage ff20[32];
+		storage ff21[32];
+		storage ff22[32];
+		storage ff23[32];
+		storage ff24[32];
+		storage ff25[32];
+		storage ff26[32];
+		storage ff27[32];
+		storage ff28[32];
+		storage ff29[32];
+		storage ff30[32];
+		storage ff31[32];
+
+		storage ffir[32];
+		storage ffccr[32];
+		storage ffexr[32];
+		storage ffenr[32];
+		storage ffcsr[32];
+
+		view f0[32] = ff0;
+		view f1[32] = ff1;
+		view f2[32] = ff2;
+		view f3[32] = ff3;
+		view f4[32] = ff4;
+		view f5[32] = ff5;
+		view f6[32] = ff6;
+		view f7[32] = ff7;
+		view f8[32] = ff8;
+		view f9[32] = ff9;
+		view f10[32] = ff10;
+		view f11[32] = ff11;
+		view f12[32] = ff12;
+		view f13[32] = ff13;
+		view f14[32] = ff14;
+		view f15[32] = ff15;
+		view f16[32] = ff16;
+		view f17[32] = ff17;
+		view f18[32] = ff18;
+		view f19[32] = ff19;
+		view f20[32] = ff20;
+		view f21[32] = ff21;
+		view f22[32] = ff22;
+		view f23[32] = ff23;
+		view f24[32] = ff24;
+		view f25[32] = ff25;
+		view f26[32] = ff26;
+		view f27[32] = ff27;
+		view f28[32] = ff28;
+		view f29[32] = ff29;
+		view f30[32] = ff30;
+		view f31[32] = ff31;
+
+		view fir[32] = ffir;
+		view fccr[32] = ffccr;
+		view fexr[32] = ffexr;
+		view fenr[32] = ffenr;
+		view fcsr[32] = ffcsr;
+
+	// ------------------------------------------------
+	// ------------------------------------------------
+	// ------------------------------------------------
+	
+	/* 
+		These declarations duplicate those in MIPS32.arh.
+		Since the system apparently doesn't allow multiple files to be processed during the assembly, 
+		these declaratons were necessary for testing purposes.
+	*/
+
+	registers:
+		storage rr0[32];
+		storage rr1[32];
+		storage rr2[32];
+		storage rr3[32];
+		storage rr4[32];
+		storage rr5[32];
+		storage rr6[32];
+		storage rr7[32];
+		storage rr8[32];
+		storage rr9[32];
+		storage rr10[32];
+		storage rr11[32];
+		storage rr12[32];
+		storage rr13[32];
+		storage rr14[32];
+		storage rr15[32];
+		storage rr16[32];
+		storage rr17[32];
+		storage rr18[32];
+		storage rr19[32];
+		storage rr20[32];
+		storage rr21[32];
+		storage rr22[32];
+		storage rr23[32];
+		storage rr24[32];
+		storage rr25[32];
+		storage rr26[32];
+		storage rr27[32];
+		storage rr28[32];
+		storage rr29[32];
+		storage rr30[32];
+		storage rr31[32];
+
+		storage r_HI[32];
+		storage r_LO[32];
+		storage r_PC[32];
+
+        view r0 = rr0;
+        view r1 = rr1;
+        view r2 = rr2;
+        view r3 = rr3;
+        view r4 = rr4;
+        view r5 = rr5;
+        view r6 = rr6;
+        view r7 = rr7;
+        view r8 = rr8;
+        view r9 = rr9;
+        view r10 = rr10;
+        view r11 = rr11;
+        view r12 = rr12;
+        view r13 = rr13;
+        view r14 = rr14;
+        view r15 = rr15;
+        view r16 = rr16;
+        view r17 = rr17;
+        view r18 = rr18;
+        view r19 = rr19;
+        view r20 = rr20;
+        view r21 = rr21;
+        view r22 = rr22;
+        view r23 = rr23;
+        view r24 = rr24;
+        view r25 = rr25;
+        view r26 = rr26;
+        view r27 = rr27;
+        view r28 = rr28;
+        view r29 = rr29;
+        view r30 = rr30;
+        view r31 = rr31;
+
+	memory:
+		range RAM[0x00000000..0xFFFFFFFF]
+		{
+            cell = 8;
+            endianess = big-endian;
+            granularity = 0;
+        }
+
+    instructions:
+    	encode reg field = register
+    	{
+			r0 = 00000, 
+			r1 = 00001,
+			r2 = 00010,
+			r3 = 00011,
+			r4 = 00100,
+			r5 = 00101,
+			r6 = 00110,
+			r7 = 00111,
+			r8 = 01000,
+			r9 = 01001,
+			r10 = 01010,
+			r11 = 01011,
+			r12 = 01100,
+			r13 = 01101,
+			r14 = 01110,
+			r15 = 01111,
+			r16 = 10000,
+			r17 = 10001,
+			r18 = 10010,
+			r19 = 10011,
+			r20 = 10100,
+			r21 = 10101,
+			r22 = 10110,
+			r23 = 10111,
+			r24 = 11000,
+			r25 = 11001,
+			r26 = 11010,
+			r27 = 11011,
+			r28 = 11100,
+			r29 = 11101,
+			r30 = 11110,
+			r31 = 11111
+    	};
+
+    // ------------------------------------------------ 
+    // ------------------------------------------------
+    // ------------------------------------------------
+
+	instructions:
+		encode freg field = register
+    	{
+			f0 = 00000, 
+			f1 = 00001,
+			f2 = 00010,
+			f3 = 00011,
+			f4 = 00100,
+			f5 = 00101,
+			f6 = 00110,
+			f7 = 00111,
+			f8 = 01000,
+			f9 = 01001,
+			f10 = 01010,
+			f11 = 01011,
+			f12 = 01100,
+			f13 = 01101,
+			f14 = 01110,
+			f15 = 01111,
+			f16 = 10000,
+			f17 = 10001,
+			f18 = 10010,
+			f19 = 10011,
+			f20 = 10100,
+			f21 = 10101,
+			f22 = 10110,
+			f23 = 10111,
+			f24 = 11000,
+			f25 = 11001,
+			f26 = 11010,
+			f27 = 11011,
+			f28 = 11100,
+			f29 = 11101,
+			f30 = 11110,
+			f31 = 11111
+    	};
+
+    	encode fmt sequence = alternatives
+	    {
+				fmt_S = {10000}, 
+				fmt_D = {10001},
+				fmt_W = {10100},
+				fmt_L = {10101}
+    	};
+
+        encode base field = immediate[5] displacement;
+        encode _offset9 field = immediate[9] offset;
+        encode _offset16 field = immediate[16] offset;
+        encode _offset19 field = immediate[19] offset;
+        encode _offset21 field = immediate[21] offset;
+        encode _offset26 field = immediate[26] offset;
+        encode _2bitType field = immediate[2] data;
+        encode imm3 field = immediate[3] data;
+        encode imm4 field = immediate[4] data;
+        encode imm5 field = immediate[5] data;
+        encode imm10 field = immediate[10] data;
+        encode imm11 field = immediate[11] data;
+        encode imm16 field = immediate[16] data;
+        encode imm19 field = immediate[19] data;
+        encode imm20 field = immediate[20] data;
+        encode imm25 field = immediate[25] data;
+        encode reg16 field = immediate[16] data;
+        encode reg5 field = immediate[5] data;
+
+        encode sel sequence = alternatives
+        {
+        	sel_0 = {000},
+        	sel_imm = {imm3 as sel}
+        };
+
+	/*------------------------------------------------------------
+		COP0 instructions
+		COP0 is used for coordination of processors in the system.
+	------------------------------------------------------------*/
+
+	instruction i_mfc0 = 
+	{
+		010000, 00000, 
+		reg as rt, reg as rd,
+		00000000,
+		sequence sel
+	}
+	{
+
+	};
+
+	instruction i_mfhc0 = {
+		010000, 00010, 
+		reg as rt, reg as rd,
+		00000000,
+		sequence sel
+	}
+	{
+
+	};
+
+	instruction i_mtc0 = {
+		010000, 00100,
+		reg as rt, reg as rd,
+		00000000,
+		sequence sel
+	}
+	{
+
+	};
+
+	instruction i_mthc0 = {
+		010000, 00110,
+		reg as rt, reg as rd,
+		00000000,
+		sequence sel
+	}
+
+    /*--------------------------------
+		COP1 instructions
+		COP1 -- FPU
+    ----------------------------------*/
+
+	    instruction i_cfc1= {
+	    	010001,
+	    	00010,
+	    	reg as rt,
+	    	freg as fs,
+	    	00000000000
+	    	}{};
+	    
+	    instruction i_ctc1= {
+	    	010001,
+	    	00110,
+	    	reg as rt,
+	    	freg as fs,
+	    	00000000000
+	    	}{};
+
+	    instruction i_ldc1= {
+	    	110101,
+	    	reg as base, 
+	    	freg as ft,
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_lwc1= {
+	    	110001,
+	    	reg as base, 
+	    	freg as ft,
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_mfc1= {
+	    	010001,
+	    	00000,
+	    	reg as rt,
+	    	freg as fs,
+	    	00000000000
+	    	}{};
+
+	    instruction i_mfhc1= {
+	    	010001,
+	    	00011,
+	    	reg as rt, freg as fs, 
+	    	00000000000
+	    	}{};
+
+	    instruction i_mtc1= {
+	    	010001,
+	    	00100,
+	    	reg as rt,
+	    	freg as fs,
+	    	00000000000
+	    	}{};
+
+	    instruction i_mthc1= {
+	    	010001,
+	    	00110,
+	    	reg as rt, freg as fs,
+	    	00000000000
+	    	}{};
+
+	    instruction i_sdc1= {
+	    	111101,
+	    	reg as base, freg as ft,
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_swc1= {
+	    	111001,
+	    	reg as base, freg as ft,
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_bc1eqz= {
+	    	010001,
+	    	01001,
+	    	freg as ft, imm16 as Offset
+	    	}{};
+
+	    instruction i_bc1nez= {
+	    	010001,
+	    	01101,
+	    	freg as ft,
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_fabs= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000101
+	    	}{};
+
+	    instruction i_fadd= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000000	    	
+	    	}{};
+
+	    instruction i_fceil_l= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001010
+	    	}{};
+
+	    instruction i_fceil_w= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001110
+	    	}{};
+
+	    instruction i_fclass= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011011
+	    	}{};
+
+	    instruction i_fcmp= {
+	    	010001,
+	    	10101,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	0,
+	    	imm5 as condn
+	    	}{};
+
+	    instruction i_fcvt_d= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	100001
+	    	}{};
+
+	    instruction i_fcvt_l= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	100101
+	    	}{};
+
+	    instruction i_fcvt_s= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	100000
+	    	}{};
+
+	    instruction i_fcvt_w= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	100100
+	    	}{};
+
+		instruction i_fdiv= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000011
+	    	}{};
+
+		instruction i_ffloor_l= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001011
+	    	}{};
+
+		instruction i_ffloor_w= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001111
+	    	}{};
+
+		instruction i_fmaddf= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011000
+	    	}{};
+
+		instruction i_fmsubf= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011001
+	    	}{};
+
+		instruction i_fmax= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011110
+	    	}{};
+
+		instruction i_fmin= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011100
+	    	}{};
+
+		instruction i_fmaxa= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011111
+	    	}{};
+
+		instruction i_fmina= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011101
+	    	}{};
+
+		instruction i_fmul= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000010
+	    	}{};
+
+		instruction i_fneg= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000111
+	    	}{};
+
+		instruction i_frecip= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	010101
+	    	}{};
+
+		instruction i_frint= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	011010
+	    	}{};
+
+		instruction i_fround_l= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001000
+	    	}{};
+
+		instruction i_fround_w= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001100
+	    	}{};
+
+		instruction i_frsqrt= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	010110
+	    	}{};
+
+		instruction i_fsel= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	010000
+	    	}{};
+
+		instruction i_fseleqz= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	010100
+	    	}{};
+
+		instruction i_fselnez= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	010111
+	    	}{};
+
+		instruction i_fsqrt= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000100
+	    	}{};
+
+		instruction i_fsub= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	000001
+	    	}{};
+
+		instruction i_ftrunc_l= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001001
+	    	}{};
+
+		instruction i_ftrunc_w= {
+	    	010001,
+	    	sequence fmt,
+	    	freg as ft,
+	    	freg as fs,
+	    	freg as fd, 
+	    	001101
+	    	}{};
+
+	    instruction i_fmov= {
+	    	010001,
+	    	sequence fmt,
+	    	00000,
+	    	freg as fs, 
+	    	freg as f,
+	    	000110
+	    }
+	    {
+
+	    };
+
+    /*--------------------------------
+		COP2 instructions
+		COP2 is implementation defined
+    ----------------------------------*/
+
+	    instruction i_cfc2={
+	    	010010,
+	    	00010,
+	    	reg as rt,
+	    	reg16 as rcop
+	    	}{};
+
+	    instruction i_ctc2={
+	    	010010,
+	    	00110,
+	    	reg as rt,
+	    	reg16 as rcop
+	    	}{};
+
+	    instruction i_ldc2={
+	    	010010,
+	    	01110,
+	    	reg5 as rt,
+	    	reg as base,
+	    	imm11 as Offset
+	    	}{};
+
+	    instruction i_lwc2={
+	    	010010,
+	    	01010,
+	    	reg5 as rt,
+	    	reg as base,
+	    	imm11 as Offset
+	    	}{};
+
+	    instruction i_mfc2={
+	    	010010,
+	    	00000,
+	    	reg as rt, 
+	    	reg16 as rcop
+	    	}{};
+
+	    instruction i_mfhc2={
+	    	010010,
+	    	00011, 
+	    	reg as rt, 
+	    	reg16 as rcop
+	    	}{};
+
+	    instruction i_mtc2={
+	    	010010,
+	    	00100,
+	    	reg as rt,
+	    	reg16 as rcop
+	    	}{};
+
+	    instruction i_mthc2={
+	    	010010,
+	    	00011,
+	    	reg as rt,
+	    	reg16 as rcop
+	    	}{};
+
+	    instruction i_sdc2={
+	    	010010,
+	    	01111,
+	    	reg5 as rcop, reg as base, imm11 as Offset
+	    	}{};
+
+	    instruction i_swc2={
+	    	010010,
+	    	01011,
+	    	reg5 as rcop,
+	    	reg as base,
+	    	imm11 as Offset
+	    	}{};
+
+	    instruction i_bc2eqz={
+	    	010010,
+	    	01001,
+	    	reg5 as ct,
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_bc2nez={
+	    	010010,
+	    	01101,
+	    	reg5 as ct, 
+	    	imm16 as Offset
+	    	}{};
+
+	    instruction i_cop2={
+	    	0100101,
+	    	imm25 as op
+	    	}{};
+		
+	mnemonics:
+
+		format f_loadstore is "${2}, {3}(${1})";
+        format f_loadstorewp is "${1}, ${2}, (${3})";
+        format f_3reg1val is "${1}, ${2}, ${3}, {4}";
+        format f_3reg is "${3}, ${1}, ${2}";
+        format f_2reg2vals is "${1}, ${2}, {3}, {4}";
+        format f_2reg1val is "${1}, ${2}, {3}";
+        format f_2regrev1val is "${2}, ${1}, {3}";
+        format f_2regrev is "${2}, ${1}";
+        format f_2reg is "${1}, ${2}";
+        format f_1reg1val is "${1}, {2}";
+        format f_1reg is "${1}";
+        format f_1val is "{1}";
+
+		mnemonic mfc0 for i_mfc0(rt, rd) f_2reg when sel_0;
+		mnemonic mfc0 for i_mfc0(rt, rd, sel) f_2reg1val when sel_imm;
+		mnemonic mfhc0 for i_mfhc0(rt, rd) f_2reg when sel_0;
+		mnemonic mfhc0 for i_mfhc0(rt, rd, sel) f_2reg when sel_imm;
+		mnemonic mfc1 for i_mfc1(rt, fs) f_2reg;
+		mnemonic mfhc1 for i_mfhc1(rt, fs) f_2reg;
+		mnemonic mfc2 for i_mfc2(rt, rcop) f_2reg;
+		mnemonic mfhc2 for i_mfhc2(rt, rcop) f_2reg
+
+		/*------------------------------------------------------------------------
+		The following formats are technically supported by MIPS specification
+		but _sel_ field is covered in the _rcop_ field in the notation
+		so these are impossible to implement properly within the system
+		
+		mnemonic mfc2 for i_mfc2(rt, rcop, sel) f_2reg1val;
+		mnemonic mfhc2 for i_mfhc2(rt, rcop, sel) f_2reg1val;
+		mnemonic mtc2 for i_mtc2(rt, rcop, sel) f_2reg1val;
+		mnemonic mthc2 for i_mthc2(rt, rcop, sel) f_2reg1val;
+		------------------------------------------------------------------------*/
+
+		mnemonic mtc0 for i_mtc0(rt, rd) f_2reg when sel_0;
+		mnemonic mtc0 for i_mtc0(rt, rd, sel) f_2reg1val when sel_imm;
+		mnemonic mthc0 for i_mthc0(rt, rd) f_2reg when sel_0;
+		mnemonic mthc0 for i_mthc0(rt, rd, sel) f_2reg1val when sel_imm;
+		mnemonic mtc1 for i_mtc1(rt, fs) f_2reg;
+		mnemonic mthc1 for i_mthc1(rt, fs) f_2reg;
+		mnemonic mtc2 for i_mtc2(rt, rcop) f_2reg;
+		mnemonic mthc2 for i_mthc2(rt, rcop) f_2reg;
+		
+		mnemonic cfc1 for i_cfc1(rt, fs) f_2reg;
+		mnemonic ctc1 for i_ctc1(rt, fs) f_2regrev;
+		mnemonic cfc2 for i_cfc2(rt, rcop) f_2reg;
+		mnemonic ctc2 for i_ctc2(rt, rcop) f_2regrev;
+		mnemonic ldc1 for i_ldc1(base, ft, Offset) f_loadstore;
+		mnemonic lwc1 for i_lwc1(base, ft, Offset) f_loadstore;
+		mnemonic sdc1 for i_sdc1(base, ft, Offset) f_loadstore;
+		mnemonic swc1 for i_swc1(base, ft, Offset) f_loadstore;
+		mnemonic ldc2 for i_ldc2(base, rt, Offset) f_loadstore;
+		mnemonic lwc2 for i_lwc2(base, rt, Offset) f_loadstore;
+		mnemonic sdc2 for i_sdc2(rcop, base, Offset) f_loadstore;
+		mnemonic swc2 for i_swc2(rcop, base, Offset) f_loadstore;
+		mnemonic bc1eqz for i_bc1eqz(ft, Offset) f_1reg1val;
+		mnemonic bc1nez for i_bc1nez(ft, Offset) f_1reg1val;
+		mnemonic bc2eqz for i_bc2eqz(ct, Offset) f_1reg1val;
+		mnemonic bc2nez for i_bc2nez(ct, Offset) f_1reg1val;
+		mnemonic cop2 for i_cop2(op) f_1val;
+
+		/* These instrucitons have variations in the mnemonic depending on the _format_ field */
+
+		mnemonic abs_s for i_fabs(fd, fs) f_2regrev when fmt_S;
+		mnemonic abs_d for i_fabs(fd, fs) f_2regrev when fmt_D;
+		mnemonic add_s for i_fadd(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic add_d for i_fadd(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic ceil_l_s for i_fceil_l(fd, fs) f_2regrev when fmt_S;
+		mnemonic ceil_l_d for i_fceil_l(fd, fs) f_2regrev when fmt_D;
+		mnemonic ceil_w_s for i_fceil_w(fd, fs) f_2regrev when fmt_S;
+		mnemonic ceil_w_d for i_fceil_w(fd, fs) f_2regrev when fmt_D;
+		mnemonic class_s for i_fclass(fd, fs) f_2regrev when fmt_S;
+		mnemonic class_d for i_fclass(fd, fs) f_2regrev when fmt_D;
+		mnemonic cvt_d_s for i_fcvt_d(fd, fs) f_2regrev when fmt_S;
+		mnemonic cvt_d_w for i_fcvt_d(fd, fs) f_2regrev when fmt_W;
+		mnemonic cvt_d_l for i_fcvt_d(fd, fs) f_2regrev when fmt_L;
+		mnemonic cvt_l_s for i_fcvt_l(fd, fs) f_2regrev when fmt_S;
+		mnemonic cvt_l_d for i_fcvt_l(fd, fs) f_2regrev when fmt_D;
+		mnemonic cvt_s_d for i_fcvt_s(fd, fs) f_2regrev when fmt_D;
+		mnemonic cvt_s_w for i_fcvt_s(fd, fs) f_2regrev when fmt_W;
+		mnemonic cvt_s_l for i_fcvt_s(fd, fs) f_2regrev when fmt_L;
+		mnemonic cvt_w_s for i_fcvt_w(fd, fs) f_2regrev when fmt_S;
+		mnemonic cvt_w_d for i_fcvt_w(fd, fs) f_2regrev when fmt_D;
+		mnemonic div_s for i_fdiv(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic div_d for i_fdiv(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic floor_l_s for i_ffloor_l(fd, fs) f_2regrev when fmt_S;
+		mnemonic floor_l_d for i_ffloor_l(fd, fs) f_2regrev when fmt_D;
+		mnemonic floor_w_s for i_ffloor_w(fd, fs) f_2regrev when fmt_S;
+		mnemonic floor_w_d for i_ffloor_w(fd, fs) f_2regrev when fmt_D;
+		mnemonic maddf_s for i_fmaddf(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic maddf_d for i_fmaddf(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic msubf_s for i_fmsubf(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic msubf_d for i_fmsubf(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic max_s for i_fmax(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic max_d for i_fmax(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic min_s for i_fmin(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic min_d for i_fmin(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic maxa_s for i_fmaxa(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic maxa_d for i_fmaxa(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic mina_s for i_fmina(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic mina_d for i_fmina(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic mov_s for i_fmov(fd, fs) f_2regrev when fmt_S;
+		mnemonic mov_d for i_fmov(fd, fs) f_2regrev when fmt_D;
+		mnemonic mul_s for i_fmul(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic mul_d for i_fmul(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic neg_s for i_fneg(fd, fs) f_2regrev when fmt_S;
+		mnemonic neg_d for i_fneg(fd, fs) f_2regrev when fmt_D;
+		mnemonic recip_s for i_frecip(fd, fs) f_2regrev when fmt_S;
+		mnemonic recip_d for i_frecip(fd, fs) f_2regrev when fmt_D;
+		mnemonic rint_s for i_frint(fd, fs) f_2regrev when fmt_S;
+		mnemonic rint_d for i_frint(fd, fs) f_2regrev when fmt_D;
+		mnemonic round_l_s for i_fround_l(fd, fs) f_2regrev when fmt_S;
+		mnemonic round_l_d for i_fround_l(fd, fs) f_2regrev when fmt_D;
+		mnemonic round_w_s for i_fround_w(fd, fs) f_2regrev when fmt_S;
+		mnemonic round_w_d for i_fround_w(fd, fs) f_2regrev when fmt_D;
+		mnemonic rsqort_s for i_frsqrt(fd, fs) f_2regrev when fmt_S;
+		mnemonic rsqort_d for i_frsqrt(fd, fs) f_2regrev when fmt_D;
+		mnemonic sel_s for i_fsel(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic sel_d for i_fsel(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic seleqz_s for i_fseleqz(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic seleqz_d for i_fseleqz(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic selnez_s for i_fselnez(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic selnez_d for i_fselnez(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic sqrt_s for i_fsqrt(fd, fs) f_2regrev when fmt_S;
+		mnemonic sqrt_d for i_fsqrt(fd, fs) f_2regrev when fmt_D;
+		mnemonic sub_s for i_fsub(fd, fs, ft) f_3reg when fmt_S;
+		mnemonic sub_d for i_fsub(fd, fs, ft) f_3reg when fmt_D;
+		mnemonic trunc_l_s for i_ftrunc_l(fd, fs) f_2regrev when fmt_S;
+		mnemonic trunc_l_d for i_ftrunc_l(fd, fs) f_2regrev when fmt_D;
+		mnemonic trunc_w_s for i_ftrunc_w(fd, fs) f_2regrev when fmt_S;
+		mnemonic trunc_w_d for i_ftrunc_w(fd, fs) f_2regrev when fmt_D;
+}

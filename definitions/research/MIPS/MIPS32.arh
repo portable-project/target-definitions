@@ -1,0 +1,2051 @@
+architecture MIPS32
+{
+	registers:
+		storage rr0[32];
+		storage rr1[32];
+		storage rr2[32];
+		storage rr3[32];
+		storage rr4[32];
+		storage rr5[32];
+		storage rr6[32];
+		storage rr7[32];
+		storage rr8[32];
+		storage rr9[32];
+		storage rr10[32];
+		storage rr11[32];
+		storage rr12[32];
+		storage rr13[32];
+		storage rr14[32];
+		storage rr15[32];
+		storage rr16[32];
+		storage rr17[32];
+		storage rr18[32];
+		storage rr19[32];
+		storage rr20[32];
+		storage rr21[32];
+		storage rr22[32];
+		storage rr23[32];
+		storage rr24[32];
+		storage rr25[32];
+		storage rr26[32];
+		storage rr27[32];
+		storage rr28[32];
+		storage rr29[32];
+		storage rr30[32];
+		storage rr31[32];
+
+		storage r_HI[32];
+		storage r_LO[32];
+		storage r_PC[32];
+
+        view r0 = rr0;
+        view r1 = rr1;
+        view r2 = rr2;
+        view r3 = rr3;
+        view r4 = rr4;
+        view r5 = rr5;
+        view r6 = rr6;
+        view r7 = rr7;
+        view r8 = rr8;
+        view r9 = rr9;
+        view r10 = rr10;
+        view r11 = rr11;
+        view r12 = rr12;
+        view r13 = rr13;
+        view r14 = rr14;
+        view r15 = rr15;
+        view r16 = rr16;
+        view r17 = rr17;
+        view r18 = rr18;
+        view r19 = rr19;
+        view r20 = rr20;
+        view r21 = rr21;
+        view r22 = rr22;
+        view r23 = rr23;
+        view r24 = rr24;
+        view r25 = rr25;
+        view r26 = rr26;
+        view r27 = rr27;
+        view r28 = rr28;
+        view r29 = rr29;
+        view r30 = rr30;
+        view r31 = rr31;
+
+        view HI = r_HI;
+        view LO = r_LO;
+        view PC = r_PC;
+
+	memory:
+		range RAM[0x00000000..0xFFFFFFFF]
+		{
+            cell = 8;
+            endianess = big-endian;
+            granularity = 0;
+        }
+
+    instructions:
+    	encode reg field = register
+    	{
+			r0 = 00000, 
+			r1 = 00001,
+			r2 = 00010,
+			r3 = 00011,
+			r4 = 00100,
+			r5 = 00101,
+			r6 = 00110,
+			r7 = 00111,
+			r8 = 01000,
+			r9 = 01001,
+			r10 = 01010,
+			r11 = 01011,
+			r12 = 01100,
+			r13 = 01101,
+			r14 = 01110,
+			r15 = 01111,
+			r16 = 10000,
+			r17 = 10001,
+			r18 = 10010,
+			r19 = 10011,
+			r20 = 10100,
+			r21 = 10101,
+			r22 = 10110,
+			r23 = 10111,
+			r24 = 11000,
+			r25 = 11001,
+			r26 = 11010,
+			r27 = 11011,
+			r28 = 11100,
+			r29 = 11101,
+			r30 = 11110,
+			r31 = 11111
+    	};
+
+        /*
+        There is a special subset of instructions with equal opcodes and everything that are distinguished by register fields.
+        The following fields are denoting cases where registers must be equal and where there must be not equal.
+        */
+        encode two_eq_regs field = register
+        {
+            r1 = 00001 00001,
+            r2 = 00010 00010,
+            r3 = 00011 00011,
+            r4 = 00100 00100,
+            r5 = 00101 00101,
+            r6 = 00110 00110,
+            r7 = 00111 00111,
+            r8 = 01000 01000,
+            r9 = 01001 01001,
+            r10 = 01010 01010,
+            r11 = 01011 01011,
+            r12 = 01100 01100,
+            r13 = 01101 01101,
+            r14 = 01110 01110,
+            r15 = 01111 01111,
+            r16 = 10000 10000,
+            r17 = 10001 10001,
+            r18 = 10010 10010,
+            r19 = 10011 10011,
+            r20 = 10100 10100,
+            r21 = 10101 10101,
+            r22 = 10110 10110,
+            r23 = 10111 10111,
+            r24 = 11000 11000,
+            r25 = 11001 11001,
+            r26 = 11010 11010,
+            r27 = 11011 11011,
+            r28 = 11100 11100,
+            r29 = 11101 11101,
+            r30 = 11110 11110,
+            r31 = 11111 11111
+        };
+
+        encode two_neq_regs field = register
+        {
+            r1 = 00001 00010,
+            r2 = 00010 00001,
+            r3 = 00011 00001,
+            r4 = 00100 00001,
+            r5 = 00101 00001,
+            r6 = 00110 00001,
+            r7 = 00111 00001,
+            r8 = 01000 00001,
+            r9 = 01001 00001,
+            r10 = 01010 00001,
+            r11 = 01011 00001,
+            r12 = 01100 00001,
+            r13 = 01101 00001,
+            r14 = 01110 00001,
+            r15 = 01111 00001,
+            r16 = 10000 00001,
+            r17 = 10001 00001,
+            r18 = 10010 00001,
+            r19 = 10011 00001,
+            r20 = 10100 00001,
+            r21 = 10101 00001,
+            r22 = 10110 00001,
+            r23 = 10111 00001,
+            r24 = 11000 00001,
+            r25 = 11001 00001,
+            r26 = 11010 00001,
+            r27 = 11011 00001,
+            r28 = 11100 00001,
+            r29 = 11101 00001,
+            r30 = 11110 00001,
+            r31 = 11111 00001
+        };
+
+        encode crc_size sequence = alternatives
+        {
+            crc_byte = {00},
+            crc_halfword = {01},
+            crc_word = {10}
+        };
+
+        encode jalr_seq sequence = alternatives
+        {
+            jalr_seq_with_r31 = { reg as rs, 00000, 11111 },
+            jalr_seq_default = { reg as rs, 00000, reg as rd }
+        };
+
+        encode sync_type_seq sequence = alternatives
+        {
+            sts_code0 = {00000},
+            sts_default = {imm5 as stype}
+        };
+
+        encode int_instr_seq sequence = alternatives
+        {
+            iis_reg0 = {00000},
+            iis_default = {reg as rt}
+        };
+
+        encode reg_or_r0 sequence = alternatives
+        {
+            rr0_reg = { reg as rs },
+            rr0_r0 = {00000}
+        };
+
+        encode double_reg_or_r0 sequence = alternatives
+        {
+            drr0_reg = { reg as rs, reg as rt },
+            drr0_r0 = {00000 00000}
+        };
+
+        encode base field = immediate[5] displacement;
+        encode _offset9 field = immediate[9] offset;
+        encode _offset16 field = immediate[16] offset;
+        encode _offset19 field = immediate[19] offset;
+        encode _offset21 field = immediate[21] offset;
+        encode _offset26 field = immediate[26] offset;
+        encode _2bitType field = immediate[2] data;
+        encode imm4 field = immediate[4] data;
+        encode imm5 field = immediate[5] data;
+        encode imm10 field = immediate[10] data;
+        encode imm11 field = immediate[11] data;
+        encode imm16 field = immediate[16] data;
+        encode imm19 field = immediate[19] data;
+        encode imm20 field = immediate[20] data;
+
+    	/* ----------------------- */
+        /* LOAD-STORE INSTRUCTIONS */
+        /* ----------------------- */ 
+
+    	instruction i_lb = {
+    		100000, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset16 as Offset}
+    	{
+
+    	};
+    	instruction i_lbe = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		101100}
+    	{
+
+    	};
+    	instruction i_lbu = {
+    		100100, 
+    		reg as Base, 
+    		reg as rt,
+            imm16 as Offset
+    		}
+    	{
+
+    	};
+    	instruction i_lbue = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		101000}
+    	{
+
+    	};
+
+    	instruction i_lh = {
+    		100001, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset16 as Offset}
+    	{
+
+    	};
+    	instruction i_lhe = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		101101}
+    	{
+
+    	};
+    	instruction i_lhu = {
+    		100101, 
+    		reg as Base, 
+    		reg as rt, 
+            _offset16 as Offset
+    		}
+    	{
+
+    	};
+    	instruction i_lhue = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		101001}
+    	{
+
+    	};
+
+		instruction i_ll = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		110110}
+    	{
+
+    	};
+    	instruction i_lle = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		101110}
+    	{
+
+    	};
+    	instruction i_llwp = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		reg as rd, 
+    		00001,
+    		110110}
+    	{
+
+    	};
+    	instruction i_llwpe = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		reg as rd, 
+    		00001,
+    		101110}
+    	{
+
+    	};
+
+		instruction i_lw = {
+    		100011, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset16 as Offset}
+    	{
+
+    	};
+    	instruction i_lwe = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		101111}
+    	{
+
+    	};
+    	instruction i_lwpc = {
+    		111011, 
+    		reg as rt, 
+    		01,
+    		_offset19 as Offset}
+    	{
+
+    	};
+
+    	instruction i_sb = {
+    		101000, 
+    		reg as Base, 
+    		reg as rt,
+    		_offset16 as Offset}
+    	{
+
+    	};
+
+    	instruction i_sbe = {
+    		011111, 
+    		reg as Base, 
+    		reg as rt,
+    		_offset9 as Offset,
+    		0,
+    		011100}
+    	{
+
+    	};
+
+    	instruction i_sc = {
+    		011111, 
+    		reg as Base,
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		100110}
+    	{
+
+    	};
+
+    	instruction i_sce = {
+    		011111, 
+    		reg as Base,
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		011110}
+    	{
+
+    	};
+
+    	instruction i_scwp = {
+    		011111, 
+    		reg as Base,
+    		reg as rt,
+    		reg as rd, 
+    		00001,
+    		100110}
+    	{
+
+    	};
+
+    	instruction i_scwpe = {
+    		011111, 
+    		reg as Base,
+    		reg as rt, 
+    		reg as rd,
+    		00001,
+    		011110}
+    	{
+
+    	};
+
+    	instruction i_sh = {
+    		101001, 
+    		reg as Base,
+    		reg as rt, 
+    		_offset16 as Offset}
+    	{
+
+    	};
+
+    	instruction i_she = {
+    		011111, 
+    		reg as Base,
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		011101}
+    	{
+
+    	};
+
+    	instruction i_sw = {
+    		101011, 
+    		reg as Base,
+    		reg as rt, 
+    		_offset16 as Offset}
+    	{
+
+    	};
+
+    	instruction i_swe = {
+    		011111, 
+    		reg as Base,
+    		reg as rt, 
+    		_offset9 as Offset,
+    		0,
+    		011111}
+    	{
+
+    	};
+
+    	instruction i_wrpgpr = {
+            010000,
+            01110,
+            reg as rt,
+            reg as rd,
+            00000000000
+        }
+        {
+
+        };
+
+        /* ---------------------------- */
+        /* CACHE OPERATION INSTRUCTIONS */
+        /* ---------------------------- */
+
+        instruction i_cache = {
+            011111,
+            reg as Base,
+            imm5 as op,
+            _offset9 as Offset,
+            0,
+            100101
+        }
+        {
+
+        };
+
+        instruction i_cachee= {
+            011111,
+            reg as Base,
+            imm5 as op,
+            _offset9 as Offset,
+            0,
+            011011
+        }
+        {
+
+        };
+
+        instruction i_ginvi= {
+            011111,
+            reg as rs,
+            0000000000000,
+            00,
+            111101
+        }
+        {
+
+        };
+
+        instruction i_ginvt= {
+            011111,
+            reg as rs,
+            00000000000,
+            _2bitType as type,
+            10,
+            111101
+        }
+        {
+
+        };
+
+        instruction i_pref= {
+            011111,
+            reg as rs,
+            imm5 as hint,
+            _offset9 as Offset,
+            0,
+            110101
+        }
+        {
+
+        };
+
+        instruction i_prefe
+        = {
+            011111,
+            reg as rs,
+            imm5 as hint,
+            _offset9 as Offset,
+            0,
+            100011
+        }
+        {
+
+        };
+
+        instruction i_tlbinv
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            000011
+        }
+        {
+
+        };
+
+        instruction i_tlbinvf
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            000100
+        }
+        {
+
+        };
+
+        instruction i_tlbp
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            001000
+        }
+        {
+
+        };
+
+        instruction i_tlbr
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            000001
+        }
+        {
+
+        };
+
+        instruction i_tlbwi
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            000010
+        }
+        {
+
+        };
+
+        instruction i_tlbwr
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            000110
+        }
+        {
+
+        };
+
+        /* ------------------------------ */
+        /* ------ ALU INSTRUCTIONS ------ */
+        /* ------------------------------ */
+
+        instruction i_add
+        = {
+            000000,
+            reg as rs,
+            reg as rt,
+            reg as rd,
+            00000,
+            100000
+        }
+        {
+
+        };
+
+        instruction i_addiu
+        = {
+            001001,
+            reg as rs,
+            reg as rt,
+            imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_addiupc
+        = {
+            111011,
+            reg as rs,
+            00,
+            imm19 as value
+        }
+        {
+
+        };
+
+        instruction i_addu
+        = {
+            000000,
+            reg as rs,
+            reg as rt,
+            reg as rd,
+            00000,
+            100001
+        }
+        {
+
+        };
+
+        instruction i_and
+        = {
+            000000,
+            reg as rs,
+            reg as rt,
+            reg as rd,
+            00000,
+            100100
+        }
+        {
+
+        };
+
+        instruction i_andi
+        = {
+            001100,
+            reg as rs,
+            reg as rt,
+            imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_aui
+        = {
+            001111,
+            sequence reg_or_r0,
+            reg as rt,
+            imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_auipc
+        = {
+            111011,
+            reg as rs,
+            11110,
+            imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_crc32
+        = {
+            011111,
+            reg as rs,
+            reg as rt,
+            00000000,
+            sequence crc_size,
+            001111
+        }
+        {
+
+        };
+
+        instruction i_crc32c
+        = {
+            011111,
+            reg as rs,
+            reg as rt,
+            00000001,
+            sequence crc_size,
+            001111
+        }
+        {
+
+        };
+
+        instruction i_div
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00010,
+            011010
+        }
+        {
+
+        };
+
+        instruction i_mod
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00011,
+            011010
+        }
+        {
+
+        };
+
+        instruction i_divu
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00010,
+            011011
+        }
+        {
+
+        };
+
+        instruction i_modu
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00011,
+            011011
+        }
+        {
+
+        };
+
+        instruction i_mul
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00010,
+            011000
+        }
+        {
+
+        };
+
+        instruction i_muh
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00011,
+            011000
+        }
+        {
+
+        };
+        
+        instruction i_mulu
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00010,
+            011001
+        }
+        {
+
+        };
+        
+        instruction i_muhu
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00011,
+            011001
+        }
+        {
+
+        };
+        
+        instruction i_nop = 
+        {
+            00000000000000000000000000000000
+        }
+        {
+
+        };
+
+        instruction i_nor
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            100111
+        }
+        {
+
+        };
+
+        instruction i_or
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            100101
+        }
+        {
+
+        };
+
+        instruction i_ori
+        = {
+            001101,
+            reg as rs, reg as rt,
+            imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_rotr
+        = {
+            000000,
+            00001,
+            reg as rt, reg as rd, imm5 as sa,
+            000010
+        }
+        {
+
+        };
+
+        instruction i_rotrv
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd, 
+            00001,
+            000110
+        }
+        {
+
+        };
+
+        instruction i_seleqz
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            110101
+        }
+        {
+
+        };
+
+        instruction i_selnez
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            110111
+        }
+        {
+            
+        };
+
+        instruction i_sll
+        = {
+            000000,
+            00000,
+            reg as rt, reg as rd, imm5 as sa,
+            000000
+        }
+        {
+
+        };
+
+        instruction i_sllv
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd, 
+            00000,
+            000100
+        }
+        {
+
+        };
+
+        instruction i_slt
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            101010
+        }
+        {
+
+        };
+
+        instruction i_slti
+        = {
+            001010,
+            reg as rs, reg as rt, imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_sltiu
+        = {
+            001011,
+            reg as rs, reg as rt, imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_sltu
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd, 00000,
+            101011
+        }
+        {
+
+        };
+
+        instruction i_sra
+        = {
+            000000,
+            00000,
+            reg as rt, reg as rd, imm5 as value,
+            000011
+        }
+        {
+
+        };
+
+        instruction i_srav
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            000111
+        }
+        {
+
+        };
+
+        instruction i_srl
+        = {
+            000000,
+            00000,
+            reg as rt, reg as rd, imm5 as value,
+            000010
+        }
+        {
+
+        };
+
+        instruction i_srlv
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            000110
+        }
+        {
+
+        };
+
+        instruction i_sub
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            100010
+        }
+        {
+
+        };
+
+        instruction i_subu
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            100011
+        }
+        {
+
+        };
+
+        instruction i_xor
+        = {
+            000000,
+            reg as rs, reg as rt, reg as rd,
+            00000,
+            100110
+        }
+        {
+
+        };
+
+        instruction i_xori
+        = {
+            001110,
+            reg as rs, reg as rt, imm16 as value
+        }
+        {
+
+        };
+
+        /* ------------------------------ */
+        /* --- BRANCHING INSTRUCTIONS --- */
+        /* ------------------------------ */
+
+        instruction i_bal
+        = {
+            000001,
+            00000,
+            10001,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_balc =
+        {
+            111010,
+            _offset26 as Offset
+        }
+        {
+
+        };
+        
+        instruction i_bc
+        = {
+            110010,
+            _offset26 as Offset
+        }
+        {
+
+        };
+
+        instruction i_beq
+        = {
+            000100,
+            sequence double_reg_or_r0, 
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bgez
+        = {
+            000001,
+            reg as rs, 
+            00001,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_blezalc = 
+        {
+            000110,
+            00000,
+            reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bgtzalc
+        = {
+            000111,
+            00000,
+            reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_beqzalc
+        = {
+            001000,
+            reg as rs,
+            00001,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bnezalc
+        = {
+            011000,
+            reg as rs,
+            00001,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_blezc
+        = {
+            010110,
+            00000,
+            reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bgtzc
+        = {
+            010111,
+            00000,
+            reg as rt, 
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_beqzc
+        = {
+            110110,
+            reg as rs,
+            _offset21 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bnezc
+        = {
+            111110,
+            reg as rs,
+            _offset21 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bgtz
+        = {
+            000111,
+            reg as rs,
+            00000,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_blez
+        = {
+            000110,
+            reg as rs,
+            00000,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bltz
+        = {
+            000001,
+            reg as rs,
+            00000,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_bne
+        = {
+            000101,
+            reg as rs,
+            reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_j
+        = {
+            000010,
+            _offset26 as Offset
+        }
+        {
+
+        };
+
+        instruction i_jal
+        = {
+            000011,
+            _offset26 as Offset
+        }
+        {
+
+        };
+
+        instruction i_jalr
+        = {
+            000000,
+            sequence jalr_seq,
+            00000,
+            001001
+        }
+        {
+
+        };
+
+        instruction i_jalrhb
+        = {
+            000000,
+            sequence jalr_seq,
+            1,
+            0000,
+            001001
+        }
+        {
+
+        };
+
+        instruction i_jialc
+        = {
+            111110,
+            00000,
+            reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_jic
+        = {
+            110110,
+            00000,
+            reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_jr
+        = {
+            000000,
+            reg as rs,
+            00000,
+            00000,
+            00000,
+            001001
+        }
+        {
+
+        };
+
+        instruction i_jrhb
+        = {
+            000000,
+            reg as rs,
+            00000,
+            00000,
+            1,
+            0000,
+            001001
+        }
+        {
+
+        };
+
+        /*----------------------------
+        SPECIAL CASE BRANCHING INSTRUCTIONS
+
+        These branching instructions should be interpreted depending on their mnemonic
+        ----------------------------*/
+
+        instruction p_bltuc_bltzalc = // BLTUC - BLTZALC
+        {
+            000111,
+            reg as rs, reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction p_bgeuc_bgezalc // BGEUC - BGEZALC
+        = {
+            000110,
+            reg as rs, reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction p_bltzc_bltc // BLTZC - BLTC
+        = {
+            010111,
+            reg as rs, reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction p_bgezc_bgec // BGEZC - BGEC
+        = {
+            010110,
+            reg as rs, reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+
+        instruction p_bovc_beqc // BOVC - BEQC
+        = {
+            001000,
+            reg as rs, reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction p_bnvc_bnec // BNVC - BNEC
+        = {
+            011000,
+            reg as rs, reg as rt,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        /* ---------------------- */
+        /* EXCEPTION INSTRUCTIONS */
+        /* ---------------------- */
+
+        instruction i_break
+        = {
+            000000,
+            00000000000000000000,
+            001101
+        }
+        {
+
+        };
+
+        instruction i_deret
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            011111
+        }
+        {
+
+        };
+
+        instruction i_di
+        = {
+            010000,
+            01011,
+            sequence int_instr_seq,
+            01100,
+            00000,
+            000,
+            000
+        }
+        {
+
+        };
+
+        instruction i_dvp
+        = {
+            010000,
+            01011,
+            reg as rt,
+            00000,
+            00000,
+            100,
+            000
+        }
+        {
+
+        };
+
+        instruction i_ehb
+        = {
+            000000,
+            00000,
+            00000,
+            00000,
+            00011,
+            000000
+        }
+        {
+
+        };
+
+        instruction i_ei
+        = {
+            010000,
+            01011,
+            sequence int_instr_seq,
+            01100,
+            00000,
+            100,
+            000
+        }
+        {
+
+        };
+
+        instruction i_eret
+        = {
+            010000,
+            1,
+            0000000000000000000,
+            011000
+        }
+        {
+
+        };
+
+        instruction i_eretnc
+        = {
+            010000,
+            1,
+            000000000000000000,
+            1,
+            011000
+        }
+        {
+
+        };
+
+        instruction i_evp
+        = {
+            010000,
+            01011,
+            reg as rt,
+            00000,
+            00000,
+            000100
+        }
+        {
+
+        };
+
+        instruction i_pause
+        = {
+            000000000000000000000,
+            00101,
+            000000
+        }
+        {
+
+        };
+
+        instruction i_sdbbp
+        = {
+            000000,
+            imm20 as code,
+            001110
+        }
+        {
+
+        };
+
+        instruction i_sigrie
+        = {
+            000001,
+            00000,
+            10111,
+            imm16 as code
+        }
+        {
+
+        };
+
+        instruction i_sync
+        = {
+            000000000000000000000,
+            sequence sync_type_seq,
+            001111
+        }
+        {
+
+        };
+
+        instruction i_synci
+        = {
+            000001,
+            reg as Base,
+            11111,
+            _offset16 as Offset
+        }
+        {
+
+        };
+
+        instruction i_syscall
+        = {
+            000000,
+            //imm20 as code,
+            00000000000000000000,
+            001100
+        }
+        {
+
+        };
+
+        instruction i_teq
+        = {
+            000000,
+            reg as rs, reg as rt,
+            0000000000,
+            110100
+        }
+        {
+
+        };
+
+        instruction i_tge
+        = {
+            000000,
+            reg as rs, reg as rt,
+            0000000000,
+            110000
+        }
+        {
+
+        };
+
+        instruction i_tgeu
+        = {
+            000000,
+            reg as rs, reg as rt,
+            0000000000,
+            110001
+        }
+        {
+
+        };
+
+        instruction i_tlt
+        = {
+            000000,
+            reg as rs, reg as rt,
+            0000000000,
+            110010
+        }
+        {
+
+        };
+
+        instruction i_tltu
+        = {
+            000000,
+            reg as rs, reg as rt,
+            0000000000,
+            110011
+        }
+        {
+
+        };
+
+        instruction i_tne
+        = {
+            000000,
+            reg as rs, reg as rt,
+            0000000000,
+            110110
+        }
+        {
+
+        };
+
+        instruction i_wait
+        = {
+            000000,
+            1,
+            0000000000000000000,
+            100000
+        }
+        {
+
+        };
+
+        /* -------------------------------------------- */
+        /* MISCELLANEOUS DATA MANIPULATION INSTRUCTIONS */
+        /* -------------------------------------------- */
+
+        instruction i_align
+        = {
+            011111,
+            reg as rs, reg as rt, reg as rd,
+            010,
+            _2bitType as bp,
+            100000
+        }
+        {
+
+        };
+
+        instruction i_aluipc
+        = {
+            111011,
+            reg as rs, 
+            11111,
+            imm16 as value
+        }
+        {
+
+        };
+
+        instruction i_bitswap
+        = {
+            011111,
+            00000,
+            reg as rt, reg as rd,
+            00000,
+            100000
+        }
+        {
+
+        };
+
+        instruction i_clo
+        = {
+            000000,
+            reg as rs,
+            00000,
+            reg as rd,
+            00001,
+            010001
+        }
+        {
+
+        };
+
+        instruction i_clz
+        = {
+            000000,
+            reg as rs,
+            00000,
+            reg as rd,
+            00001,
+            010000
+        }
+        {
+
+        };
+
+        instruction i_ext
+        = {
+            011111,
+            reg as rs, reg as rt, imm5 as size, imm5 as pos,
+            000000
+        }
+        {
+
+        };
+
+        instruction i_ins
+        = {
+            011111,
+            reg as rs, reg as rt, imm5 as size, imm5 as pos,
+            000100            
+        }
+        {
+
+        };
+
+        instruction i_seb
+        = {
+            011111,
+            00000,
+            reg as rt,
+            reg as rd,
+            10000,
+            000100
+        }
+        {
+
+        };
+
+        instruction i_seh
+        = {
+            011111,
+            00000,
+            reg as rt, reg as rd,
+            11000,
+            000100
+        }
+        {
+
+        };
+
+        instruction i_wsbh
+        = {
+            011111,
+            00000,
+            reg as rt,
+            reg as rd,
+            00010,
+            100000
+        }
+        {
+
+        };
+
+    /* ---------------------------------------------- */
+    /* ----- INSTRUCTION DECLARATIONS END HERE ------ */
+    /* ---------------------------------------------- */
+    /* ------------ MNEMONICS START HERE ------------ */
+    /* ---------------------------------------------- */
+
+    mnemonics:
+
+        format f_loadstore is "${2}, {3}(${1})";
+        format f_loadstorewp is "${1}, ${2}, (${3})";
+        format f_noargs is "";
+        format f_synci is "{2}(${1})";
+        format f_cache is "{2}, {3}(${1})";
+
+        /*
+        It should be noted that the actual crc instruciton format is, say, "crc32b $r3, $r2, $r3"
+        That is: <instruction> ${2}, ${1}, ${2}
+        However, the ArchDef validator refuses to validate the valid format!
+        Hence, this one is used for the time being:
+        */
+        format f_crc is "${2}, ${1}"; // crc instructions only
+
+        format f_3reg1val is "${1}, ${2}, ${3}, {4}";
+        format f_3reg is "${3}, ${1}, ${2}";
+        format f_2reg2vals is "${1}, ${2}, {3}, {4}";
+        format f_2reg1val is "${1}, ${2}, {3}";
+        format f_1reg1val is "${1}, {2}";
+        format f_2reg is "${1}, ${2}";
+        format f_1reg is "${1}";
+        format f_1val is "{1}";
+
+        mnemonic lb for i_lb(Base, rt, Offset) f_loadstore;
+        mnemonic lbe for i_lbe(Base, rt, Offset) f_loadstore;
+        mnemonic lbu for i_lbu(Base, rt, Offset) f_loadstore;
+        mnemonic lbue for i_lbue(Base, rt, Offset) f_loadstore;
+        mnemonic lh for i_lh(Base, rt, Offset) f_loadstore;
+        mnemonic lhe for i_lhe(Base, rt, Offset) f_loadstore;
+        mnemonic lhu for i_lhu(Base, rt, Offset) f_loadstore;
+        mnemonic lhue for i_lhue(Base, rt, Offset) f_loadstore;
+        mnemonic ll for i_ll(Base, rt, Offset) f_loadstore;
+        mnemonic lle for i_lle(Base, rt, Offset) f_loadstore;
+        mnemonic lw for i_lw(Base, rt, Offset) f_loadstore;
+        mnemonic lwe for i_lwe(Base, rt, Offset) f_loadstore;
+        mnemonic sb for i_sb(Base, rt, Offset) f_loadstore;
+        mnemonic sbe for i_sbe(Base, rt, Offset) f_loadstore;
+        mnemonic sc for i_sc(Base, rt, Offset) f_loadstore;
+        mnemonic sce for i_sce(Base, rt, Offset) f_loadstore;
+        mnemonic sh for i_sh(Base, rt, Offset) f_loadstore;
+        mnemonic she for i_she(Base, rt, Offset) f_loadstore;
+        mnemonic sw for i_sw(Base, rt, Offset) f_loadstore;
+        mnemonic swe for i_swe(Base, rt, Offset) f_loadstore;
+
+        mnemonic scwp for i_scwp(Base, rt, rd) f_loadstorewp;
+        mnemonic scwpe for i_scwpe(Base, rt, rd) f_loadstorewp;
+        mnemonic llwp for i_llwp(Base, rt, rd) f_loadstorewp;
+        mnemonic llwpe for i_llwpe(Base, rt, rd) f_loadstorewp;
+
+        mnemonic lwpc for i_lwpc(rt, Offset) f_1reg1val;
+        mnemonic wrpgpr for i_wrpgpr(rt, rd) f_2reg;
+
+        /* ---------------------------- */
+        /* CACHE OPERATION INSTRUCTIONS */
+        /* ---------------------------- */
+
+        mnemonic cache for i_cache(Base, op, Offset) f_cache;
+        mnemonic cachee for i_cachee(Base, op, Offset) f_cache;
+        mnemonic ginvi for i_ginvi(rs) f_1reg;
+        mnemonic ginvt for i_ginvt(rs, type) f_1reg1val;
+        mnemonic pref for i_pref(rs, hint, Offset) f_cache;
+        mnemonic prefe for i_prefe(rs, hint, Offset) f_cache;
+        mnemonic tlbinv for i_tlbinv() f_noargs;
+        mnemonic tlbinvf for i_tlbinvf() f_noargs;
+        mnemonic tlbp for i_tlbp() f_noargs;
+        mnemonic tlbr for i_tlbr() f_noargs;
+        mnemonic tlbwi for i_tlbwi() f_noargs;
+        mnemonic tlbwr for i_tlbwr() f_noargs;
+
+        /* ------------------------------ */
+        /* ------ ALU INSTRUCTIONS ------ */
+        /* ------------------------------ */
+
+        mnemonic nop for i_nop() f_noargs;
+
+        mnemonic add for i_add(rs, rt, rd) f_3reg;
+        mnemonic addu for i_addu(rs, rt, rd) f_3reg;
+        mnemonic AND for i_and(rs, rt, rd) f_3reg;
+        mnemonic div for i_div(rs, rt, rd) f_3reg;
+        mnemonic mod for i_mod(rs, rt, rd) f_3reg;
+        mnemonic divu for i_divu(rs, rt, rd) f_3reg;
+        mnemonic modu for i_modu(rs, rt, rd) f_3reg;
+        mnemonic mul for i_mul(rs, rt, rd) f_3reg;
+        mnemonic muh for i_muh(rs, rt, rd) f_3reg;
+        mnemonic mulu for i_mulu(rs, rt, rd) f_3reg;
+        mnemonic muhu for i_muhu(rs, rt, rd) f_3reg;
+        mnemonic nor for i_nor(rs, rt, rd) f_3reg;
+        mnemonic OR for i_or(rs, rt, rd) f_3reg;
+        mnemonic rotrv for i_rotrv(rs, rt, rd) f_3reg;
+        mnemonic seleqz for i_seleqz(rs, rt, rd) f_3reg;
+        mnemonic selnez for i_selnez(rs, rt, rd) f_3reg;
+        mnemonic slt for i_slt(rs, rt, rd) f_3reg;
+        mnemonic sltu for i_sltu(rs, rt, rd) f_3reg;
+        mnemonic sllv for i_sllv(rs, rt, rd) f_3reg;
+        mnemonic srav for i_srav(rs, rt, rd) f_3reg;
+        mnemonic srlv for i_srlv(rs, rt, rd) f_3reg;
+        mnemonic sub for i_sub(rs, rt, rd) f_3reg;
+        mnemonic subu for i_subu(rs, rt, rd) f_3reg;
+        mnemonic XOR for i_xor(rs, rt, rd) f_3reg;
+
+        mnemonic crc32b for i_crc32(rs, rt) f_crc when crc_byte;
+        mnemonic crc32h for i_crc32(rs, rt) f_crc when crc_halfword;
+        mnemonic crc32w for i_crc32(rs, rt) f_crc when crc_word;
+        mnemonic crc32cb for i_crc32c(rs, rt) f_crc when crc_byte;
+        mnemonic crc32ch for i_crc32c(rs, rt) f_crc when crc_halfword;
+        mnemonic crc32cw for i_crc32c(rs, rt) f_crc when crc_word;
+
+        mnemonic addiu for i_addiu(rs, rt, value) f_2reg1val;
+        mnemonic andi for i_andi(rs, rt, value) f_2reg1val;
+        mnemonic aui for i_aui(rs, rt, value) f_2reg1val;
+        mnemonic ori for i_ori(rs, rt, value) f_2reg1val;
+        mnemonic rotr for i_rotr(rt, rd, sa) f_2reg1val;
+        mnemonic sll for i_sll(rt, rd, sa) f_2reg1val;
+        mnemonic slti for i_slti(rs, rt, value) f_2reg1val;
+        mnemonic sltiu for i_sltiu(rs, rt, value) f_2reg1val;
+        mnemonic sra for i_sra(rt, rd, value) f_2reg1val;
+        mnemonic srl for i_srl(rt, rd, value) f_2reg1val;
+        mnemonic xori for i_xori(rs, rt, value) f_2reg1val;
+
+        mnemonic auipc for i_auipc(rs, value) f_1reg1val;
+        mnemonic addiupc for i_addiupc(rs, value) f_1reg1val;
+
+        /* ------------------------------ */
+        /* --- BRANCHING INSTRUCTIONS --- */
+        /* ------------------------------ */
+
+        // mnemonic bltzalc for i_bltzalc(rt, Offset) f_1reg1val;
+        // mnemonic bgezalc for i_bgezalc(rt, Offset) f_1reg1val;
+        // mnemonic bltzc for i_bltzc(rs, Offset) f_1reg1val;
+        // mnemonic bgezc for i_bgezc(rs, Offset) f_1reg1val;
+        // mnemonic bltuc for i_bltuc(rs, rt, Offset) f_2reg1val;
+        // mnemonic bgeuc for i_bgeuc(rs, rt, Offset) f_2reg1val;
+        // mnemonic bovc for i_bovc(rs, rt, Offset) f_2reg1val;
+        // mnemonic bnvc for i_bnvc(rs, rt, Offset) f_2reg1val;
+        // mnemonic beqc for i_beqc(rs, rt, Offset) f_2reg1val;
+        // mnemonic bltc for i_bltc(rs, rt, Offset) f_2reg1val;
+        // mnemonic bgec for i_bgec(rs, rt, Offset) f_2reg1val;
+        // mnemonic bnec for i_bnec(rs, rt, Offset) f_2reg1val;
+
+        /* Idioms with reverse operand order */
+        // mnemonic bgtc for i_bltc(rs, rt, Offset) f_2reg1val;
+        // mnemonic blec for i_bgec(rs, rt, Offset) f_2reg1val;
+        // mnemonic bgtuc for i_bltuc(rs, rt, Offset) f_2reg1val;
+        // mnemonic bleuc for i_bgeuc(rs, rt, Offset) f_2reg1val;
+
+        mnemonic bal for i_bal(Offset) f_1val;
+        mnemonic balc for i_balc(Offset) f_1val;
+        mnemonic bc for i_bc(Offset) f_1val;
+        mnemonic beq for i_beq(rs, rt, Offset) f_2reg1val when drr0_reg;
+        mnemonic bgez for i_bgez(rs, Offset) f_1reg1val;
+        mnemonic bgtzalc for i_bgtzalc(rt, Offset) f_1reg1val;
+        mnemonic beqzalc for i_beqzalc(rs, Offset) f_1reg1val;
+        mnemonic bnezalc for i_bnezalc(rs, Offset) f_1reg1val;
+        mnemonic blezalc for i_blezalc(rt, Offset) f_1reg1val;
+
+        mnemonic blezc for i_blezc(rt, Offset) f_1reg1val;
+        mnemonic bgtzc for i_bgtzc(rt, Offset) f_1reg1val;
+        mnemonic beqzc for i_beqzc(rs, Offset) f_1reg1val;
+        mnemonic bnezc for i_bnezc(rs, Offset) f_1reg1val;
+        mnemonic bgtz for i_bgtz(rs, Offset) f_1reg1val;
+        mnemonic blez for i_blez(rs, Offset) f_1reg1val;
+        mnemonic bltz for i_bltz(rs, Offset) f_1reg1val;
+        mnemonic bne for i_bne(rs, rt, Offset) f_2reg1val;
+        mnemonic j for i_j(Offset) f_1val;
+        mnemonic jal for i_jal(Offset) f_1val;
+        mnemonic jalr for i_jalr(rs) f_1reg when jalr_seq_with_r31;
+        mnemonic jalr for i_jalr(rs, rd) "${2}, ${1}" when jalr_seq_default;
+        mnemonic jalrhb for i_jalrhb(rs) f_1reg when jalr_seq_with_r31;
+        mnemonic jalrhb for i_jalrhb(rs, rd) "${2}, ${1}" when jalr_seq_default;
+        mnemonic jialc for i_jialc(rt, Offset) f_1reg1val;
+        mnemonic jic for i_jic(rt, Offset) f_1reg1val;
+        mnemonic jr for i_jr(rs) f_1reg;
+        mnemonic jrhb for i_jrhb(rs) f_1reg;
+
+        /* ---------------------- */
+        /* EXCEPTION INSTRUCTIONS */
+        /* ---------------------- */
+
+        mnemonic BREAK for i_break() f_noargs;
+        mnemonic deret for i_deret() f_noargs;
+        mnemonic di for i_di() f_noargs when iis_reg0;
+        mnemonic di for i_di(rt) f_1reg when iis_default;
+        mnemonic dvp for i_dvp(rt) f_1reg;
+        mnemonic ehb for i_ehb() f_noargs;
+        mnemonic ei for i_ei() f_noargs when iis_reg0;
+        mnemonic ei for i_ei(rt) f_1reg when iis_default;
+        mnemonic eret for i_eret() f_noargs;
+        mnemonic eretnc for i_eretnc() f_noargs;
+        mnemonic evp for i_evp(rt) f_1reg;
+        mnemonic pause for i_pause() f_noargs;
+        mnemonic sdbbp for i_sdbbp(code) f_1val;
+        mnemonic sigrie for i_sigrie(code) f_1val;
+        mnemonic sync for i_sync() f_noargs when sts_code0;
+        mnemonic sync for i_sync(stype) f_1val when sts_default;
+        mnemonic synci for i_synci(Base, Offset) f_synci;
+        mnemonic syscall for i_syscall() f_noargs;
+        mnemonic teq for i_teq(rs, rt) f_2reg;
+        mnemonic tge for i_tge(rs, rt) f_2reg;
+        mnemonic tgeu for i_tgeu(rs, rt) f_2reg;
+        mnemonic tlt for i_tlt(rs, rt) f_2reg;
+        mnemonic tltu for i_tltu(rs, rt) f_2reg;
+        mnemonic tne for i_tne(rs, rt) f_2reg;
+        mnemonic wait for i_wait() f_noargs;
+
+        /* -------------------------------------------- */
+        /* MISCELLANEOUS DATA MANIPULATION INSTRUCTIONS */
+        /* -------------------------------------------- */
+
+        mnemonic align for i_align(rs, rt, rd, bp) f_3reg1val;
+        mnemonic aluipc for i_aluipc(rs, value) f_1reg1val;
+        mnemonic bitswap for i_bitswap(rt, rd) f_2reg;
+        mnemonic clo for i_clo(rs, rd) f_2reg;
+        mnemonic clz for i_clz(rs, rd) f_2reg;
+        mnemonic ext for i_ext(rs, rt, size, pos) f_2reg2vals;
+        mnemonic ins for i_ins(rs, rt, size, pos) f_2reg2vals;
+        mnemonic seb for i_seb(rt, rd) f_2reg;
+        mnemonic seh for i_seh(rt, rd) f_2reg;
+        mnemonic wsbh for i_wsbh(rt, rd) f_2reg;
+
+        /* -------------------- */
+        /* MIPS ASSEMBLY IDIOMS */
+        /* -------------------- */
+
+        mnemonic lui for i_aui(rt, value) f_1reg1val when rr0_r0;
+        mnemonic b for i_beq(Offset) f_1val when drr0_r0;
+
+}

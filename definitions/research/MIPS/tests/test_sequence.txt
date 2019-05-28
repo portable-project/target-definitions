@@ -1,0 +1,10 @@
+# Sample testing sequence.
+
+> Portable.<...>.Manager -s AssembleRaw archName MIPS32 asmListing mips_sample_file.asm definitionFile MIPS32.arh
+[message with <id>]
+
+> Portable.<...>.Manager -g <id>
+
+> Portable.<>.Manager -g <id> -r raw.out.bin 1> out.bin
+
+# Then process out.bin through any disassembler.
