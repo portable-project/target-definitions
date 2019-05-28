@@ -1,0 +1,508 @@
+architecture ARM1136JF {
+
+	registers:
+		storage R0_S[32];
+		storage R1_S[32];
+		storage R2_S[32];
+		storage R3_S[32];
+		storage R4_S[32];
+		storage R5_S[32];
+		storage R6_S[32];
+		storage R7_S[32];
+		storage R8_S[32];
+		storage R9_S[32];
+		storage R10_S[32];
+		storage R11_S[32];
+		storage R12_S[32];
+		storage R13_S[32];
+		storage R14_S[32];
+		storage R15_S[32];
+
+		storage CPSR_S[32];
+		storage SPRS_S[32];
+
+
+		view R0 = R0_S;
+        view R1 = R1_S;
+        view R2 = R2_S;
+        view R3 = R3_S;
+        view R4 = R4_S;
+        view R5 = R5_S;
+        view R6 = R6_S;
+        view R7 = R7_S;
+        view R8 = R8_S;
+        view R9 = R9_S;
+        view R10 = R10_S;
+        view R11 = R11_S;
+        view R12 = R12_S;
+
+        view SP = R13_S;
+        view LR = R14_S;
+        view PC = R15_S;
+
+        view CPSR = CPSR_S;
+        view SPRS = SPRS_S;
+
+        view N = CPSR_S[31];
+        view Z = CPSR_S[30];
+        view C = CPSR_S[29];
+        view V = CPSR_S[28];
+        view Q = CPSR_S[27];
+        view DNM_1 = CPSR_S[25..26];
+        view J = CPSR_S[24];
+        view DNM_2 = CPSR_S[20..23];
+       	view GE = CPSR_S[16..19];
+       	view DNM_3 = CPSR_S[10..15];
+        view E = CPSR_S[9];
+        view A = CPSR_S[8];
+        view I = CPSR_S[7];
+        view F = CPSR_S[6];
+        view T = CPSR_S[5];
+        view M = CPSR_S[0..4];
+     
+    memory: 
+    	range ram[0x00000000..0xFFFFFFFF]{
+    		cell = 8;
+    		endianess = big-endian;
+    		granularity = 0; 
+    	}
+
+	instructions:
+
+		encode reg32 field = register{
+			PC = 1111,
+			LR = 1110,
+			SP = 1101,	
+			R12 = 1100,
+            R11 = 1011,
+            R10 = 1010,
+            R9 = 1001,
+            R8 = 1000,
+            R7 = 0111,
+            R6 = 0110,
+            R5 = 0101,
+            R4 = 0100,
+            R3 = 0011,
+            R2 = 0010,
+            R1 = 0001,
+            R0 = 0000
+		};
+
+/* 
+	TODO_1 we use only condition.al
+	But we need to use cases. In all instructons except coprocessor if condition field is omitted we use 1110 as default value (it's condition.al) 
+
+	TODO_2 we need to use one_bit_field filed, but now we use only one_bti_filed.b 
+	that's why we can't say to our programm what is the meaning of bit (name of bit)
+*/ 
+
+
+
+		encode condition field = cases{
+			/* 
+				Some instructions have this field, remember that, if the field is omitted, use al - 1110
+				but coprocessor instructions use default value - 1111 
+				now we use only condition.al (everywhere)
+
+			*/ 
+			eq = 0000,
+			ne = 0001,
+			cs = 0010,
+			cc = 0011,
+
+			mi = 0100,
+			pl = 0101,
+			vs = 0110,
+			vc = 0111,
+
+			hi = 1000,
+			ls = 1001,
+			ge = 1010,
+			lt = 1011,
+			gt = 1100,
+			le = 1101,
+			al = 1110
+
+		};
+
+//todo: rename some fiels depends on their meanins. (maybe contexts of them will be the same) 
+		encode one_bit_field field = cases{
+			a =  0  , 
+			b =  1   
+		};
+
+		encode imm2 field = immediate[2] data; 
+		encode imm3 field = immediate[3] data; 
+		encode imm4 field = immediate[4] data; 
+		encode imm5 field = immediate[5] data;
+		encode imm6 field = immediate[6] data; 
+		encode imm7 field = immediate[7] data; 
+		encode imm8 field = immediate[8] data; 
+		encode imm12 field = immediate[12] data;
+		encode imm15 field = immediate[15] data;
+		encode imm16 field = immediate[16] data; 
+		encode imm24 field = immediate[24] data;
+
+		encode shiftKind field = cases {
+			left = 01,
+			right = 10
+		};
+
+		encode varopnd sequence = alternatives {
+			immediateShifts = { imm5 as shift_off, shiftKind.left, 0, reg32 as Rm },
+			registerShift = { reg32 as Rs, 0, shiftKind.left, 1, reg32 as Rm }
+		};
+
+		encode mode field = cases {
+			User = 1 0000,
+			FIQ  = 1 0001, 
+			IBQ  = 1 0010,
+			Supervisor = 1 0011,
+			Abort = 1 0111,
+			Undefined = 1 1011, 
+			System = 1 1111
+		};
+
+/* IMPORTANT
+	if (i=0, bit[7] and bit[4] = 1) it's not a data - processing instructions 
+
+	SBO - should be one, SBZ - should be zero (suddenly)
+*/
+
+
+
+/* ======================================================== data - processing instuctions  =============================================================== */
+/* ===== add and subtract =========================== */
+		instruction adc1 = {condition.al, 00, 1, 0101, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand}; 
+		instruction adc2 = {condition.al, 00, 0, 0101, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd };
+		
+
+		instruction add1 = {condition.al, 00, 1 /* I - field*/, 0100, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand } {
+			Rd = Rn + shifter_operand;			
+		};
+		instruction add2 = {condition.al, 00, 0 /* I - field*/, 0100, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd } ; /* {
+			when rawOffset then {
+				Rd = Rn + ram[off]; 
+			} else {
+				when left then 
+					Rd = Rn + ram[off << shift_off];
+				else
+					Rd = Rn + ram[off >> shift_off];
+			}
+		};*/
+
+		instruction and1 = {condition.al, 00, 1, 0000, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand}; 
+		instruction and2 = {condition.al, 00, 0, 0000, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd}; 
+
+		instruction qadd = {condition.al, 0001 0000, reg32 as Rn, reg32 as Rd, 0000 /*as SBZ*/, 0101, reg32 as Rm }; 
+
+		instruction qdadd = {condition.al, 0001 0100, reg32 as Rn, reg32 as Rd, 0000 /*as SBZ*/, 0101, reg32 as Rm };
+
+		instruction qdsub = {condition.al, 0001 0110, reg32 as Rn, reg32 as Rd, 0000 /*as SBZ*/, 0101, reg32 as Rm }; 
+
+		instruction qsub = {condition.al, 0001 0010, reg32 as Rn, reg32 as Rd, 0000 /*as SBZ*/, 0101, reg32 as Rm }; 
+
+		instruction rsb1 = {condition.al, 00, 1, 0011, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand }; 
+		instruction rsb2 = {condition.al, 00, 0, 0011, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd }; 
+
+		instruction rsc1 = {condition.al, 00, 1, 0111, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand } ;
+		instruction rsc2 = {condition.al, 00, 0, 0111, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd } ;
+
+		instruction sbc1 = {condition.al, 00, 1, 0110, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand }; 
+		instruction sbc2 = {condition.al, 00, 0, 0110, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd }; 
+
+
+
+/* ===== compare =========================== */
+		instruction cmn1 = {condition.al, 00, 1 /* i - field */, 1011, 1, reg32 as Rn, 0000 /*as SBZ*/, imm12 as shifter_operand }; 
+		instruction cmn2 = {condition.al, 00, 0                , 1011, 1, reg32 as Rn, 0000 /*as SBZ*/, sequence varopnd }; 
+
+		instruction cmp1 = {condition.al, 00, 1 /* i - field */, 1010, 1, reg32 as Rn,0000 /*as SBZ*/, imm12 as shifter_operand }; 
+		instruction cmp2 = {condition.al, 00, 0                , 1010, 1, reg32 as Rn, 0000 /*as SBZ*/, sequence varopnd }; 
+
+/* ===== logical =========================== */
+		instruction bic1 = {condition.al, 00, 1, 1110, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand }; 
+		instruction bic2 = {condition.al, 00, 0, 1110, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd } ;
+
+		instruction cpy = {condition.al, 0001 1010, 0000 /*as SBZ*/, reg32 as Rd, 0000 0000, reg32 as Rm}; 
+
+		instruction eor1 = {condition.al, 00, 1 /*as i field */ , 0001, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand };
+		instruction eor2 = {condition.al, 00, 0                 , 0001, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd };
+
+		instruction mov1 = {condition.al, 00, 1, 1101, one_bit_field.b, 0000 /*as SBZ*/, reg32 as Rd, imm12 as shifter_operand };
+		instruction mov2 = {condition.al, 00, 0, 1101, one_bit_field.b, 0000 /*as SBZ*/, reg32 as Rd, sequence varopnd };
+
+		instruction mvn1 = {condition.al, 00, 1, 1111, one_bit_field.b, 0000 /*as SBZ*/, reg32 as Rd, imm12 as shifter_operand };
+		instruction mvn2 = {condition.al, 00, 0, 1111, one_bit_field.b, 0000 /*as SBZ*/, reg32 as Rd, sequence varopnd }; 
+
+		instruction orr1 = {condition.al, 00, 1, 1100, one_bit_field.b, reg32 as Rn, reg32 as Rd, imm12 as shifter_operand };
+		instruction orr2 = {condition.al, 00, 0, 1100, one_bit_field.b, reg32 as Rn, reg32 as Rd, sequence varopnd };
+
+/* ===== byte-reverse =========================== */
+		instruction rev = {condition.al, 01101, 0, 11, 1111 /*as SBO*/, reg32 as Rd, 1111 /*as SBO*/, 0, 011, reg32 as Rm }; 
+		instruction rev16 = {condition.al, 01101, 0, 11, 1111 /*as SBO*/, reg32 as Rd, 1111 /*as SBO*/, 1, 011, reg32 as Rm }; 
+		instruction revsh = {condition.al, 01101, 1, 11, 1111 /*as SBO*/, reg32 as Rd, 1111 /*as SBO*/, 1, 011, reg32 as Rm }; 
+
+
+/* ===== parallel add and subtract =========================== */
+		instruction qadd16 = {condition.al, 0110 0010, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0001, reg32 as Rm };
+		instruction qadd8 = {condition.al, 0110 0010, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 1001, reg32 as Rm };
+
+		instruction qaddsubx = {condition.al, 0110 0010, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0011, reg32 as Rm }; 
+
+		instruction qsub16 = {condition.al, 0110 0010, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0111, reg32 as Rm }; 
+		instruction qsub8 = {condition.al, 0110 0010, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 1111, reg32 as Rm }; 
+
+		instruction qsubaddx = {condition.al, 0110 0010, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0101, reg32 as Rm }; 
+
+		instruction sadd16 = {condition.al, 0110 0001, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0001, reg32 as Rm }; 
+		instruction sadd8 = {condition.al, 0110 0001, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 1001, reg32 as Rm }; 
+
+		instruction saddsubx = {condition.al, 0110 0001, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0011, reg32 as Rm }; 
+
+		instruction shadd16 = {condition.al, 0110 0011, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 0001, reg32 as Rm };  	
+
+
+/* ===== multiply and multiply-accomulate =========================== */
+/* == 32x32 == */
+		instruction mla = {condition.al, 0000 001, one_bit_field.b, reg32 as Rd, reg32 as Rn, reg32 as Rs, 1001, reg32 as Rm }; 
+
+		instruction mul = {condition.al, 0000 000, one_bit_field.b, reg32 as Rd, 0000 /*as SBZ*/, reg32 as Rs, 1001, reg32 as Rm }; 
+
+
+/* ===== miscellaneous =========================== */
+		instruction clz = {condition.al, 00010110, 1111 /*as SBO*/, reg32 as Rd, 1111 /*as SBO*/, 0001, reg32 as Rm }; 
+
+		instruction pkhbt = {condition.al, 0110 1000, reg32 as Rn, reg32 as Rd, imm5 as shift_imm, 001, reg32 as Rm };
+
+		instruction pkhtb = {condition.al, 0110 1000, reg32 as Rn, reg32 as Rd, imm5 as shift_imm, 101, reg32 as Rm };
+
+		instruction sel = {condition.al, 0110 1000, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/ , 1011, reg32 as Rm }; 
+
+
+/* ======================================================== control instructions =============================================================== */
+/* ===== branch =========================== */
+		instruction b = {condition.al, 101, 0, imm24 as signed_immed_24};
+		instruction bl = {condition.al, 101, 1, imm24 as signed_immed_24};
+
+		instruction blx = {1111, 101, one_bit_field.a, imm24 as signed_immed_24 };
+		instruction blx2 = {condition.al, 00010010, 1111 /*as SBO*/, 1111 /*as SBO*/, 1111 /*as SBO*/, 0011, reg32 as Rm} ; 
+
+		instruction bx = {condition.al, 00010010, 1111 /*as SBO*/, 1111 /*as SBO*/, 1111 /*as SBO*/, 0001, reg32 as Rm }; 
+
+		instruction bxj = {condition.al, 00010010, 1111 /*as SBO*/, 1111 /*as SBO*/, 1111 /*as SBO*/, 0010, reg32 as Rm};
+
+/* ===== status register handing =========================== */
+		instruction mrs = {condition.al, 0,0,0,1,0, one_bit_field.b, 0,0,  1111 /*as SBO*/, reg32 as Rd, 0000 0000 0000  /*as SBZ*/ };
+
+		instruction msr1 = {condition.al, 0011 0, one_bit_field.b, 10, imm4 as field_mask, 1111 /*as SBO*/, imm4 as rotate_imm, imm8 as bit_immediate };
+		instruction msr2 = {condition.al, 0001 0, one_bit_field.b, 10, imm4 as field_mask, 1111 /*as SBO*/, 0000 /*as SBZ*/, 0000, reg32 as Rm };
+
+/* ===== change state =========================== */
+// QUESTION !!! check this instucton - page 179/A4-29
+		instruction cps = {1111, 0001 0000, imm2 as imod, one_bit_field.b, 0, 000 0000 /*as SBZ*/, one_bit_field.b, one_bit_field.b, one_bit_field.b, one_bit_field.b, mode.User}; 
+
+		instruction setend = {1111, 0001 0000, 000, 1, 000 000 /*as SBZ*/, one_bit_field.b, one_bit_field.b , 0000, 0000 /*as SBZ*/ }; 
+
+/* ===== software breakepoint  =========================== */
+		instruction bkpt = {1110, 0001 0010, imm12 as immed_1 , 0111, imm4 as immed_2 }; 
+
+
+// IMPORTANT: there are two different varians of instruction below (with or without condition - without cond_fiels we use 1111, remember that cond is case
+	// to get more information look at isa 
+/* ======================================================== coprocessor instructions =============================================================== */
+/* ===== coprocessor =========================== */
+		instruction cdp = {condition.al, 1110, imm4 as opcode_1, reg32 as  CRn, reg32 as CRd,imm4 as cp_num, imm3 as opcode_2, 0, reg32 as CRm}; 
+		instruction cdp2 = {1111, 1110, imm4 as opcode_1, reg32 as  CRn, reg32 as CRd,imm4 as cp_num, imm3 as opcode_2, 0, reg32 as CRm}; 
+
+		instruction ldc = {condition.al, 110, one_bit_field.b, one_bit_field.b, one_bit_field.b, one_bit_field.b, 1 , reg32 as Rn, reg32 as CRd, imm4 as cp_num, imm8 as eigth_bit_world_offset }; 
+		instruction ldc2 = {1111, 110, one_bit_field.b, one_bit_field.b, one_bit_field.b, one_bit_field.b, 1 , reg32 as Rn, reg32 as CRd, imm4 as cp_num, imm8 as eigth_bit_world_offset }; 
+
+		instruction mcr = {condition.al, 1110, imm3 as opcode_1, 0, reg32 as CRn, reg32 as Rd, imm4 as cp_num, imm3 as opcode_2, 1, reg32 as CRm };
+		instruction mcr2 = {1111, 1110, imm3 as opcode_1, 0, reg32 as CRn, reg32 as Rd, imm4 as cp_num, imm3 as opcode_2, 1, reg32 as CRm };
+
+		instruction mcrr = {condition.al, 1100 0100, reg32 as Rn, reg32 as Rd, imm4 as cp_num, imm4 as opcode, reg32 as CRm };
+		instruction mcrr2 = {1111, 1100 0100, reg32 as Rn, reg32 as Rd, imm4 as cp_num, imm4 as opcode, reg32 as CRm };
+
+		instruction mrc = {condition.al, 1110, imm3 as opcode_1, 1, reg32 as CRn, reg32 as Rd, imm4 as cp_num, imm3 as opcode_2, 1, reg32 as CRm }; 
+		instruction mrc2 = {1111, 1110, imm3 as opcode_1, 1, reg32 as CRn, reg32 as Rd, imm4 as cp_num, imm3 as opcode_2, 1, reg32 as CRm }; 
+
+		instruction mrrc = {condition.al, 1100 0101, reg32 as Rn, reg32 as Rd, imm4 as cp_num, imm4 as opcode, reg32 as CRm };
+		instruction mrrc2 = {1111, 1100 0101, reg32 as Rn, reg32 as Rd, imm4 as cp_num, imm4 as opcode, reg32 as CRm };
+
+
+/* ======================================================== load and store instructions =============================================================== */
+/* ===== load =========================== */
+		instruction ldr =   {condition.al, 01,  one_bit_field.b, one_bit_field.b,one_bit_field.b, 0,                  one_bit_field.b, 1 , reg32 as Rn, reg32 as Rd, imm12 as addr_mode };
+
+		instruction ldrb =  {condition.al, 01,  one_bit_field.b, one_bit_field.b, one_bit_field.b, 1,                  one_bit_field.b, 1, reg32 as Rn, reg32 as Rd, imm12 as addr_mode };
+
+		instruction ldrbt = {condition.al, 01,  one_bit_field.b, 0,                  one_bit_field.b, 1,                  1,                  1, reg32 as  Rn, reg32 as Rd, imm12 as addr_mode };
+
+		instruction ldrd =  {condition.al, 000,  one_bit_field.b,  one_bit_field.b,  one_bit_field.b,  one_bit_field.b, 0, reg32 as Rn, reg32 as Rd, imm4 as addr_mode_1, 1101, imm4 as addr_mode_2  };
+
+		instruction ldrh =  {condition.al, 000, one_bit_field.b, one_bit_field.b, one_bit_field.b, one_bit_field.b, 1, reg32 as Rn, reg32 as Rd, imm4 as addr_mode_1, 1011, imm4 as addr_mode_2  };
+
+		instruction ldrsb = {condition.al, 000, one_bit_field.b, one_bit_field.b, one_bit_field.b, one_bit_field.b, 1, reg32 as Rn, reg32 as Rd, imm4 as addr_mode_1, 1101, imm4 as addr_mode_2  };
+
+		instruction ldrsh = {condition.al, 000, one_bit_field.b, one_bit_field.b, one_bit_field.b, one_bit_field.b, 1, reg32 as Rn, reg32 as Rd, imm4 as addr_mode_1, 1111, imm4 as addr_mode_2 };
+
+		instruction ldrt =  {condition.al, 01, one_bit_field.b, 0, one_bit_field.b, 0,1,1, reg32 as Rn, reg32 as Rd, imm12 as addr_mode };
+
+		instruction rfe = {1111, 100, one_bit_field.b, one_bit_field.b, 0, one_bit_field.b, 1, reg32 as Rn, 0000 /*as SBZ*/, 1010, 0000 0000 /*as SBZ*/ }; 
+/* ===== load multiply =========================== */
+		instruction ldm1 = {condition.al, 100, one_bit_field.b, one_bit_field.b, 0, one_bit_field.b, 1, reg32 as Rn, imm16 as registers_list    }; 
+		instruction ldm2 = {condition.al, 100, one_bit_field.b, one_bit_field.b, 1, 0,                  1, reg32 as Rn, 0, imm15 as registers_list }; 
+		instruction ldm3 = {condition.al, 100, one_bit_field.b, one_bit_field.b, 1, one_bit_field.b, 1, reg32 as Rn, 1, imm15 as registers_list }; 
+
+/* ===== load multiply =========================== */
+		instruction pld = {1111, 01, one_bit_field.b, 1, one_bit_field.b, 101, reg32 as Rn, 1111, imm12 as addr_mode };
+
+/* ===== synchronization primitives =========================== */
+		instruction ldrex = { condition.al, 0001 100, 1, reg32 as Rn, reg32 as Rd, 1111 /*as SBO*/, 1001, 1111 /*as SBO*/ };
+
+
+	mnemonics:
+
+//IMPORTANT:  question - what about condition ? what about 2 field in the one big (shifted operand include two different fields..)  
+// there aren't some examples in the doc 
+		format arg1 is "{1}"; 
+		format arg2 is "{1}, {2}"; 
+		format arg2_sh is "{1}, {2}, {3}";
+		format arg3 is "{1}, {2}, {3}";
+		format arg2_shifts is "{1}, {2}, {3}{4}"; 
+		format arg4 is "{1}, {2}, {3}, {4}"; 
+		format arg5 is "{1}, {2}, {3}, {4}, {5}"; 
+		format arg6 is "{1}, {2}, {3}, {4}, {5}, {6}"; 
+
+		mnemonic adc for adc1(Rn, Rd, shifter_operand) arg2_sh;
+			mnemonic adc for adc2(Rn, Rd, shift_off, Rm) arg2_shifts when immediateShifts, 
+							 	 (Rn, Rd, Rs, Rm) arg2_shifts when registerShift; 
+		mnemonic add for add1(Rn, Rd, shifter_operand) arg2_sh; 		
+			mnemonic add for add2(Rn, Rd, shift_off, Rm) arg2_shifts when immediateShifts, 
+							 (Rn, Rd, Rs, Rm) arg2_shifts when registerShift; 	
+		mnemonic and_1 for and1(Rn, Rd, shifter_operand) arg2_sh;
+		//	mnemonic and for and2(Rn, Rd, shift_off, Rm) arg2_shifts when immediateShifts, 
+		//					 (Rn, Rd, Rs, Rm) arg2_shifts when registerShift;
+
+
+		mnemonic b for b(signed_immed_24) arg1; 
+		mnemonic bl for bl(signed_immed_24) arg1; 
+
+		mnemonic bic for bic1(Rn, Rd, shifter_operand) arg2_sh; 
+
+		mnemonic bkpt for bkpt(immed_1, immed_2) arg2; 
+
+		mnemonic blx for blx(signed_immed_24) arg1; 
+		mnemonic blx for blx2(Rm) arg1; 
+
+		mnemonic bx for bx(Rm) arg1;
+		mnemonic bxj for bxj(Rm) arg1; 
+
+//CAREFUL: other order of fields 
+		mnemonic cdp for cdp(cp_num, opcode_1, CRn, CRd, CRm, opcode_2) arg6; 
+		mnemonic cdp2 for cdp2(cp_num, opcode_1, CRn, CRd, CRm, opcode_2) arg6; 
+
+		mnemonic clz for clz(Rd, Rm) arg2; 
+
+		mnemonic cmn for cmn1(Rn, shifter_operand) arg2; 
+
+		mnemonic cmp for cmp1(Rn, shifter_operand) arg2; 
+
+		// unusual command (look at page 179: A4-29 to get more information  )
+		mnemonic cps for cps(imod) arg1; 
+
+		mnemonic cpy for cpy(Rd, Rm) arg2; 
+
+		mnemonic eor for eor1(Rn,Rd, shifter_operand) arg2_sh; 
+
+//IMPORTANT: some fields read as one (there is an example - addresing_mode p.489 A5-29) ; other order of fields  
+		mnemonic ldc for ldc(cp_num, CRd, Rn,eigth_bit_world_offset) "{1},{2},{3},{4}"; 
+		
+//IMPORTANT: there are 4 fields, the forth is addresing_mode with depends on P,U,W bits (cases)  
+		mnemonic ldm for ldm1(Rn, registers_list) arg2; 
+		mnemonic ldm for ldm2(Rn, registers_list) arg2; 
+		mnemonic ldm for ldm3(Rn, registers_list) arg2; 
+
+// IMPORTANR: there is field add_mode (A5-18) - read it 
+		mnemonic lrd for ldr(Rd, Rn, addr_mode) arg3; 
+		mnemonic ldrb for ldrb(Rd, Rn, addr_mode) arg3;
+		mnemonic ldrd for ldrd(Rd, Rn, addr_mode_1, addr_mode_2) arg4; 
+		mnemonic ldrex for ldrex(Rd,Rn) arg2; 
+		mnemonic ldrh for ldrh(Rd, Rn, addr_mode_1, addr_mode_2)  arg4;
+		mnemonic ldrsb for ldrsb(Rd, Rn,addr_mode_1,addr_mode_2) arg4;
+		mnemonic ldrsh for ldrsh(Rd,Rn,addr_mode_1,addr_mode_2) arg4;
+		mnemonic ldrt for ldrt(Rd, Rn, addr_mode) arg4;
+
+
+		mnemonic mcr for mcr(cp_num, opcode_1,Rd, CRn, CRm, opcode_2) arg6; 
+		mnemonic mcr2 for mcr2(cp_num, opcode_1,Rd, CRn, CRm, opcode_2) arg6; 
+
+		mnemonic mcrr for mcrr(cp_num, opcode,Rd,Rn,CRm) arg5; 
+		mnemonic mcrr2 for mcrr2(cp_num, opcode,Rd,Rn,CRm) arg5; 
+
+		mnemonic mla for mla(Rd,Rn,Rs,Rm) arg4; 
+
+		mnemonic mov for mov1(Rd,shifter_operand) arg2; 
+
+		mnemonic mrc for mrc(cp_num,opcode_1,Rd,CRn,CRm, opcode_2) arg6; 
+		mnemonic mrc2 for mrc2(cp_num,opcode_1,Rd,CRn,CRm, opcode_2) arg6; 
+
+		mnemonic mrrc for mrrc(cp_num,opcode,Rd,Rn,CRm) arg5;
+		mnemonic mrrc2 for mrrc2(cp_num,opcode,Rd,Rn,CRm) arg5;
+
+//QUESTION: there is field CRSR/SPSR in mnemonic (but there isn't such field in the opcode)...
+		mnemonic mrs for mrs(Rd) arg1; 
+
+//IMPORTANT: change the mnemonic (ew need to rotate - p.226 A4.1.39 A4-78)
+		mnemonic msr for msr1(field_mask,rotate_imm,bit_immediate) arg3; 
+		mnemonic msr for msr2(field_mask,Rm) arg2;
+
+		mnemonic mul for mul(Rd, Rm, Rs) arg3; 
+
+		mnemonic mvn for mvn1(Rd, shifter_operand) arg2;
+
+//IMPORTANT: change the mnemonic (shift_imm) 
+		mnemonic pkhbt for pkhbt(Rd,Rn,Rm, shift_imm) arg4;  
+		mnemonic pkhtb for pkhtb(Rd,Rn,Rm, shift_imm) arg4; 
+
+//IMPORTANT: there isn't field Rn in mnemonic. A4.1.45
+		mnemonic pld for pld(Rn, addr_mode) arg2;
+
+		mnemonic qadd for qadd(Rd,Rm,Rn) arg3; 
+		mnemonic qadd16 for qadd16(Rd,Rm,Rn) arg3; 
+		mnemonic qadd8 for qadd8(Rd,Rm,Rn) arg3; 
+		mnemonic qaddsubx for qaddsubx(Rd,Rm,Rn) arg3; 
+		mnemonic qdadd for qdadd(Rd,Rm,Rn) arg3; 
+		mnemonic qdsub for qdsub(Rd,Rm,Rn) arg3;
+		mnemonic qsub for qsub(Rd,Rm,Rn) arg3;
+		mnemonic qsub16 for qsub16(Rd,Rm,Rn) arg3;
+		mnemonic qsub8 for qsub8(Rd,Rm,Rn) arg3;
+		mnemonic qsubaddx for qsubaddx(Rd,Rm,Rn) arg3;
+
+		mnemonic rev for rev(Rd,Rm) arg2; 
+		mnemonic rev16 for rev16(Rd,Rm) arg2; 
+		mnemonic revsh for revsh(Rd,Rm) arg2; 
+
+//IMPORTANT: there is one more field in the mnemonic - addressing mode  4.1.5
+		mnemonic rfe for rfe(Rn) arg1; 
+
+		mnemonic rsb for rsb1(Rd, Rn, shifter_operand) arg2_sh; 
+
+		mnemonic rsc for rsc1(Rd, Rn, shifter_operand) arg2_sh; 
+
+		mnemonic sadd16 for sadd16(Rd,Rn,Rm) arg3;
+		mnemonic sadd8 for sadd8(Rd,Rn,Rm) arg3; 
+		mnemonic saddsubx for saddsubx(Rd,Rn,Rm);
+
+		mnemonic sbc for sbc1(Rd,Rn,shifter_operand) arg2_sh; 
+
+		mnemonic sel for sel(Rd,Rn,Rm) arg3; 
+
+// QUESTION: there is only one field in the mnemonic below, but there isn't such field in the opcode (it depends on bit E - case)
+		//mnemonic setend for setend(); 
+
+		mnemonic shadd16 for shadd16(Rd,Rn,Rm) arg3; 
+
+			 		 
+}   

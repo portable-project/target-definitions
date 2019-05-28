@@ -1,0 +1,12 @@
+(from other machine)  file format binary
+
+
+Disassembly of section .data:
+
+00000000 <.data>:
+   0:	e2bf7ff7 	adcs	r7, pc, #988	; 0x3dc
+   4:	e2912ff7 	adds	r2, r1, #988	; 0x3dc
+   8:	e2134ff7 	ands	r4, r3, #988	; 0x3dc
+   c:	eaffffff 	b	0x10
+  10:	ebffffff 	bl	0x14
+  14:	e3d01ff7 	bics	r1, r0, #988	; 0x3dc
