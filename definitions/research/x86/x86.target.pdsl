@@ -1,0 +1,1007 @@
+architecture x86 {
+
+    registers:
+
+/*--------------------General-Purpose Registers--------------------*/
+		storage EAX_S[32];
+		storage EBX_S[32];
+	    	storage ECX_S[32];
+	    	storage EDX_S[32];
+	    	storage EBP_S[32];
+	    	storage ESI_S[32];
+	    	storage EDI_S[32];
+	    	storage ESP_S[32];
+	
+	    	/*-----32 bit-----*/
+	    	view EAX = EAX_S;
+	    	view EBX = EBX_S;
+	    	view ECX = ECX_S;
+	    	view EDX = EDX_S;
+    		view EBP = EBP_S;
+	    	view ESI = ESI_S;
+	    	view EDI = EDI_S;
+	    	view ESP = ESP_S;
+	
+	        /*-----16 bit-----*/
+	        view AX = EAX_S[0..15];
+	        view BX = EBX_S[0..15];
+	        view CX = ECX_S[0..15];
+	        view DX = EDX_S[0..15];
+	        view BP = EBP_S[0..15];
+	        view SI = ESI_S[0..15];
+	        view DI = EDI_S[0..15];
+	        view SP = ESP_S[0..15];
+	
+	        /*-----8 bit-----*/
+	        view AH = EAX_S[8..15];
+	        view BH = EBX_S[8..15];
+        	view CH = ECX_S[8..15];
+	        view DH = EDX_S[8..15];
+	
+	        view BL = EBX_S[0..7];
+	        view AL = EAX_S[0..7];
+	        view CL = ECX_S[0..7];
+	        view DL = EDX_S[0..7];
+
+/*------------------INSTRUCTION POINTER-------------------------*/
+	        storage EIP_S [32];
+	        view EIP = EIP_S;
+	        view IP = EIP_S[0..15];
+
+/*--------------------FLAGS REGISTER----------------------------*/
+	        storage EFLAGS_S [32];
+
+        	view CF = EFLAGS_S[0]; 
+		view PF = EFLAGS_S[2];
+	        view AF = EFLAGS_S[4];
+	        view ZF = EFLAGS_S[6];
+	        view SF = EFLAGS_S[7];
+	        view TF = EFLAGS_S[8];
+	        view IF = EFLAGS_S[9];
+	        view DF = EFLAGS_S[10];
+	        view OF = EFLAGS_S[11];
+	        view IOPL = EFLAGS_S[12..13];
+	        view NT = EFLAGS_S[14];
+	        view RF = EFLAGS_S[16];
+	        view VM = EFLAGS_S[17];
+	        view AC = EFLAGS_S[18];
+	        view VIF = EFLAGS_S[19];
+	        view VIP = EFLAGS_S[20];
+	        view ID = EFLAGS_S[21];
+
+/*-------------------Segment Registers-------------------------*/
+	        storage CS_S [16];
+	        storage DS_S [16];
+	        storage ES_S [16];
+	        storage SS_S [16];
+	        storage FS_S [16];
+	        storage GS_S [16];
+	
+	        view CS = CS_S[0..15];
+	        view DS = DS_S[0..15];
+	        view ES = ES_S[0..15];
+	        view SS = SS_S[0..15];
+	        view FS = FS_S[0..15];
+	        view GS = GS_S[0..15];
+	
+
+    memory:
+
+		range default [0x00000000..0xffffffff] {
+	            cell = 8;
+	            endianess = little-endian;
+	            granularity = 0;
+	        }
+
+
+    instructions:
+		encode imm8  field = immediate[8]  data;
+		encode imm16 field = immediate[16] data;
+		encode imm32 field = immediate[32] data;
+		encode imm64 field = immediate[64] data;
+		
+		encode off8  field = immediate[8]  offset;
+		encode off16 field = immediate[16] offset;
+		encode off32 field = immediate[32] offset;
+		encode off64 field = immediate[64] offset;
+		
+		encode disp8  field = immediate[8]  displacement;
+		encode disp16 field = immediate[16] displacement;
+		encode disp32 field = immediate[32] displacement;
+		encode disp64 field = immediate[64] displacement;	
+		
+		/* reg field in ModRM byte when w is NOT present */
+		encode reg16NW field = register {
+			AX = 000,
+			CX = 001,
+			DX = 010,
+			BX = 011,
+			SP = 100,
+			BP = 101,
+			SI = 110,
+			DI = 111
+		};
+		
+		encode reg32NW field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+			ESP = 100,
+			EBP = 101,
+			ESI = 110,
+			EDI = 111
+		};
+		
+		
+		/* reg field in ModRM byte when w is present */
+		encode reg16W0 field = register {
+			AL = 000,
+			CL = 001,
+			DL = 010,
+			BL = 011,
+			AH = 100,
+			CH = 101,
+			DH = 110,
+			BH = 111
+		};
+		
+		encode reg16W1 field = register {
+			AX = 000,
+			CX = 001,
+			DX = 010,
+			BX = 011,
+			SP = 100,
+			BP = 101,
+			SI = 110,
+			DI = 111
+		};
+		
+		encode reg32W0 field = register {
+			AL = 000,
+			CL = 001,
+			DL = 010,
+			BL = 011,
+			AH = 100,
+			CH = 101,
+			DH = 110,
+			BH = 111
+		};
+		
+		encode reg32W1 field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+			ESP = 100,
+			EBP = 101,
+			ESI = 110,
+			EDI = 111
+		};
+		
+		
+		/* reg field in ModRM byte for operations on a segment registers */		
+		encode sreg2 field = register {
+			ES = 00,
+			CS = 00,
+			SS = 00,
+			DS = 00
+		};
+
+		encode sreg3 field = register {
+			ES = 000,
+			CS = 001,
+			SS = 010,
+			DS = 011,
+			FS = 100,
+			GS = 101
+		};		
+		
+		
+		/* condition test */		
+		encode tttn field = cases {
+			o	= 0000, /* overflow */
+			no	= 0001, /* no overflow */
+			bnae	= 0010, /* below, not above or equal */
+			nbae	= 0011, /* not below, above or equal */
+			ez	= 0100, /* equal, zero */
+			nenz	= 0101, /* not equal, not zero */
+			bena	= 0110, /* below or equal, not above */
+			nbea	= 0111, /* not below or equal, above */
+			s	= 1000, /* sign */
+			ns	= 1001, /* not sign */
+			ppe	= 1010, /* parity, parity even */
+			nppo	= 1011, /* not parity, parity odd */
+			lnge	= 1100, /* less than, not greater than or equal to */
+			nlge	= 1101, /* not less than, greater than or equal to */
+			leng	= 1110, /* less than or equal to, not greater than */
+			nleg	= 1111  /* not less than or equal to, greater than */
+		};
+				
+		
+		/* to review  */	
+		encode mod field = cases {
+			reg-indir = 00,  // Register inderect addr mode or SIB without displacement or displacement only addressing mode
+			one-byte = 01,   // 1-byte signed displ follows addressing mode byte(s)
+			four-byte = 10,  // 4-byte signed displ follows addressing mode byte(s)
+			reg-adr-mod = 11 // Register addressing mode
+		};
+		
+		/* ModRM&SIB  */				
+		encode rmMod00AsReg field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+			ESI = 110,
+			EDI = 111
+		};
+		
+		encode rmModXXAsReg field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+//			ESP = 100,
+//			EBP = 101,
+			ESI = 110,
+			EDI = 111
+		};               
+		
+		/*---------------------SIB ENCODING------------------------------*/
+		encode sibR32 field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+			ESP = 100,
+			EBP = 101, /* TODO: disp32 only with no base if MOD is 00, otherwise disp8 or disp32+[EBP] */
+			ESI = 110,
+			EDI = 111
+		};
+		
+		encode sibR32_2 field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+			ESP = 100,
+			ESI = 110,
+			EDI = 111
+		};
+
+
+		encode sibIndex field = register {
+			EAX = 000,
+			ECX = 001,
+			EDX = 010,
+			EBX = 011,
+			/* ___ = 100,*/ /* means no scaled index(illegal) */ 
+			EBP = 101,
+			ESI = 110,
+			EDI = 111
+		};
+
+		encode sibByte sequence = alternatives {
+			scale1     = { 00, sibIndex as index, sibR32 as base },
+			scale2     = { 01, sibIndex as index, sibR32 as base },
+			scale4     = { 10, sibIndex as index, sibR32 as base },
+			scale8     = { 11, sibIndex as index, sibR32 as base }
+		};
+		
+		encode sibByteWithoutEBP sequence = alternatives {
+			scale1     = { 00, sibIndex as index, sibR32_2 as base },
+			scale2     = { 01, sibIndex as index, sibR32_2 as base },
+			scale4     = { 10, sibIndex as index, sibR32_2 as base },
+			scale8     = { 11, sibIndex as index, sibR32_2 as base }
+		};
+
+
+// 101 with 00 mod - displacement only mode; 100 - sib mod  TODO:  esp and ebp cases in r/m 
+		encode rmModByte8 sequence = alternatives {     
+//			nobase = { 00, reg16W0 as reg1, 100, 11, sibIndex as index, 101, disp32 as disp},     
+			ebp00   = { 01, reg16W0 as reg1, 101, 00000000 }, 
+			rm00off = { 00, reg16W0 as reg1, 101                 , disp32 as disp },
+			scale4WithoutBase = { 00, reg16W0 as reg1, 100, 10, sibIndex as reg2, 101, /*disp*/ 00000000000000000000000000000000  },
+			scale8WithoutBase = { 00, reg16W0 as reg1, 100, 11, sibIndex as reg2, 101, /*disp*/ 00000000000000000000000000000000  },
+
+			rm00sib = { 00, reg16W0 as reg1, 100                 , sequence sibByteWithoutEBP },
+			rm01sib = { 01, reg16W0 as reg1, 100                 , sequence sibByte, disp8 as disp8 },
+			rm10sib = { 10, reg16W0 as reg1, 100                 , sequence sibByte, disp32 as disp32 },
+
+			rm00reg = { 00, reg16W0 as reg1, rmMod00AsReg as reg2 },
+			rm01reg = { 01, reg16W0 as reg1, rmModXXAsReg as reg2, disp8  as disp8 },
+			rm10reg = { 10, reg16W0 as reg1, rmModXXAsReg as reg2, disp32 as disp32 }
+		};
+
+
+		encode rmModByte16 sequence = alternatives {
+//			nobase = { 00, reg16W1 as reg1, 100, 11, sibIndex as index, 101, disp32 as disp},          
+			ebp00   = { 01, reg16W1 as reg1, 101, 00000000 },
+			rm00off = { 00, reg16W1 as reg1, 101                 , disp32 as disp },
+			scale4WithoutBase = { 00, reg16W1 as reg1, 100, 10, sibIndex as reg2, 101, /*disp*/ 00000000000000000000000000000000  },
+			scale8WithoutBase = { 00, reg16W1 as reg1, 100, 11, sibIndex as reg2, 101, /*disp*/ 00000000000000000000000000000000  },
+
+			rm00sib = { 00, reg16W1 as reg1, 100                 , sequence sibByteWithoutEBP },
+			rm01sib = { 01, reg16W1 as reg1, 100                 , sequence sibByte, disp8 as disp8 },
+			rm10sib = { 10, reg16W1 as reg1, 100                 , sequence sibByte, disp32 as disp32 },
+
+			rm00reg = { 00, reg16W1 as reg1, rmMod00AsReg as reg2 },
+			rm01reg = { 01, reg16W1 as reg1, rmModXXAsReg as reg2, disp8  as disp8 },
+			rm10reg = { 10, reg16W1 as reg1, rmModXXAsReg as reg2, disp32 as disp32 }
+		};
+
+		
+		encode rmModByte32 sequence = alternatives {
+//			nobase = { 00, reg32W1 as reg1, 100, 11, sibIndex as index, 101, disp32 as disp},     
+			ebp00   = { 01, reg32W1 as reg1, 101, 00000000 },
+			rm00off = { 00, reg32W1 as reg1, 101                 , disp32 as disp },
+			scale4WithoutBase = { 00, reg32W1 as reg1, 100, 10, sibIndex as reg2, 101, /*disp*/ 00000000000000000000000000000000  },
+			scale8WithoutBase = { 00, reg32W1 as reg1, 100, 11, sibIndex as reg2, 101, /*disp*/ 00000000000000000000000000000000  },
+
+			rm00sib = { 00, reg32W1 as reg1, 100                 , sequence sibByteWithoutEBP },
+			rm01sib = { 01, reg32W1 as reg1, 100                 , sequence sibByte, disp8 as disp8 },
+			rm10sib = { 10, reg32W1 as reg1, 100                 , sequence sibByte, disp32 as disp32 },
+
+			rm00reg = { 00, reg32W1 as reg1, rmMod00AsReg as reg2 },
+			rm01reg = { 01, reg32W1 as reg1, rmModXXAsReg as reg2, disp8  as disp8 },
+			rm10reg = { 10, reg32W1 as reg1, rmModXXAsReg as reg2, disp32 as disp32 }
+		};
+		
+	mnemonics: 		
+			format mem-to-reg of    (reg1, reg2) 		"{1}, [{2}]"		when rm00reg,  // reg addressing	reg, [reg]
+						(reg1, disp) 		"{1}, [{2}]"		when rm00off,  // only displacement     reg, [num]
+//						(reg1, reg2) 		"{1}, [{2} * 1]"	when rm00reg2,			//	reg, [reg * 1]
+//						(reg1, index) 		"{1}, [{2} * 2]"	when rm00sib..kk and scale2, 	//	reg, [reg2 * 2] = reg2 + reg2 ?? ????? [eax *2]
+						(reg1, reg2) 		"{1}, [{2} * 4]"	when scale4WithoutBase,		//	reg, [reg * 4]  (eax + eax) / (eax + eax 1)
+						(reg1, reg2) 		"{1}, [{2} * 8]"	when scale8WithoutBase,		//	reg, [reg * 8]
+	/*problems w/ disp8 and 32*/		(reg1, disp8, reg2) 	"{1}, [{3} + {2}]" 	when rm01reg, 			//	reg, [reg + num]
+						(reg1, disp32, reg2) 	"{1}, [{2} + {3}]" 	when rm10reg,			//	reg, [reg + num]
+						(reg1, base, index) 	"{1}, [{2} + {3}]" 	when scale1,			//	reg, [reg + reg]
+//						(reg1, base, index) 	"{1}, [{2} + {3} * 1]" 	when scale1_2,                  //	reg, [reg + reg * 1]
+						(reg1, base, index) 	"{1}, [{2} + {3} * 2]" 	when rm00sib and scale2,        //	reg, [reg + reg * 2]
+						(reg1, base, index) 	"{1}, [{2} + {3} * 4]" 	when rm00sib and scale4,        //	reg, [reg + reg * 4]
+						(reg1, base, index) 	"{1}, [{2} + {3} * 8]" 	when rm00sib and scale8,        //	reg, [reg + reg * 8]
+						(reg1, index,base,disp8) "{1}, [{4}+{3}+{2}*1]"   when rm01sib and scale1, 	//	reg, [disp + base + index* num]
+						(reg1, index,base,disp8) "{1}, [{4}+{3}+{2}*2]"   when rm01sib and scale2,
+						(reg1, index,base,disp8) "{1}, [{4}+{3}+{2}*4]"   when rm01sib and scale4,
+						(reg1, index,base,disp8) "{1}, [{4}+{3}+{2}*8]"   when rm01sib and scale8,
+						(reg1, index,base,disp32) "{1}, [{3}+{4}+{2}*1]"   when rm10sib and scale1,
+						(reg1, index,base,disp32) "{1}, [{3}+{4}+{2}*2]"   when rm10sib and scale2,
+						(reg1, index,base,disp32) "{1}, [{3}+{4}+{2}*4]"   when rm10sib and scale4,
+						(reg1, index,base,disp32) "{1}, [{3}+{4}+{2}*8]"   when rm10sib and scale8,
+	
+//specials:
+						(reg1)			"{1}, [EBP]"		when ebp00;                     //      reg, [EBP]
+/*TODO:	reg, [disp + reg * scale] 101 in BASE*///	(reg1, index, disp)		"{1}, [{3} + {2}*8]" when nobase;
+
+
+			format  reg-to-mem of   (reg1, reg2) 		"[{2}], {1}"		when rm00reg,  
+						(reg1, disp) 		"[{2}], {1}"		when rm00off,  
+//						(reg1, reg2) 		"{1}, [{2} * 1]"	when rm00reg2,			
+//						(reg1, index) 		"{1}, [{2} * 2]"	when rm00sib..kk and scale2, 	
+						(reg1, reg2) 		"[{2} * 4], {1}"	when scale4WithoutBase,		
+						(reg1, reg2) 		"[{2} * 8], {1}"	when scale8WithoutBase,		
+	/*problems w/ disp8 and 32*/		(reg1, disp8, reg2) 	"[{3} + {2}], {1}" 	when rm01reg, 			
+						(reg1, disp32, reg2) 	"[{2} + {3}], {1}" 	when rm10reg,			
+						(reg1, base, index) 	"[{2} + {3}], {1}" 	when scale1,			
+//						(reg1, base, index) 	"{1}, [{2} + {3} * 1]" 	when scale1_2,                  
+						(reg1, base, index) 	"[{2} + {3} * 2], {1}"	when rm00sib and scale2,        
+						(reg1, base, index) 	"[{2} + {3} * 4], {1}"	when rm00sib and scale4,        
+						(reg1, base, index) 	"[{2} + {3} * 8], {1}"	when rm00sib and scale8,        
+						(reg1, index,base,disp8) "[{4}+{3}+{2}*1], {1}"   when rm01sib and scale1, 	
+						(reg1, index,base,disp8) "[{4}+{3}+{2}*2], {1}"   when rm01sib and scale2,
+						(reg1, index,base,disp8) "[{4}+{3}+{2}*4], {1}"   when rm01sib and scale4,
+						(reg1, index,base,disp8) "[{4}+{3}+{2}*8], {1}"   when rm01sib and scale8,
+						(reg1, index,base,disp32) "[{3}+{4}+{2}*1], {1}"   when rm10sib and scale1,
+						(reg1, index,base,disp32) "[{3}+{4}+{2}*2], {1}"   when rm10sib and scale2,
+						(reg1, index,base,disp32) "[{3}+{4}+{2}*4], {1}"   when rm10sib and scale4,
+						(reg1, index,base,disp32) "[{3}+{4}+{2}*8], {1}"   when rm10sib and scale8,
+	
+//specials:
+						(reg1)			"[EBP], {1}"		when ebp00;                    
+						//(reg1, index, disp)	"[{3} + {2}*8], {1}"	when nobase;
+
+//			format mem-only of	(reg1) 			"[{1}]" 		when smth; ...
+
+
+	instructions:
+
+		encode Wand2args sequence = alternatives {
+			w8bit  = { 0, 11, reg32W0 as reg1, reg32W0 as reg2 },
+			w32bit = { 1, 11, reg32W1 as reg1, reg32W1 as reg2 }
+		};
+
+	        /* ASCII Adjust after Addition*/ 
+	        instruction aaa = { 00110111 }{
+			if( (AL & 0xF) > 9 || AF == 1) then {
+				AX = AX + 0x106;// strange
+				AF = 1;
+				CF = 1;
+			}
+			else {
+				AF = 0;                                                                 				
+				CF = 0;
+			}
+			AL = AL & 0xF;
+		};
+
+		/* ASCII adjusy AX before division  */     
+/*		instruction  aad1 = { 11010101, 00001010 }{ 
+			let tempAL = AL;
+			let tempAH = AH;
+			AL = (tempAL + ( tempAH * 0xA)) & 0xFF;
+			AH = 0;
+		};
+*/
+		instruction  aad2 = { 11010101, imm8 as imm }{
+			let tempAL = AL;
+			let tempAH = AH;
+			AL = (tempAL + ( tempAH * imm)) & 0xFF;
+			AH = 0;
+		};
+
+		/* ASCII Adjust AX After Multiply  */
+/*		instruction  aam1 = { 11010100, 00001010 }{
+			let tempAL = AL;
+			AH = tempAL / 0xA;
+			AL = tempAL % 0xA;
+		};
+*/
+		instruction  aam2 = { 11010100, imm8 as imm }{
+			let tempAL = AL;
+			AH = tempAL / imm;
+			AL = tempAL % imm;
+		};
+
+		/* ASCII Adjust AL After Subtraction */
+		instruction aas = { 00111111 }{
+			if( (AL & 0xF) > 9 || AF == 1) then {
+				AX = AX - 6;
+				AH = AH - 1;
+				AF = 1;
+				CF = 1;
+				AL = AL & 0xF;
+			}
+			else {
+				AF = 0;
+				CF = 0;
+				AL = AL & 0xF;
+			}
+
+		};
+
+		/* Add with Carry */
+		instruction adc1 = { 0001000, sequence Wand2args };  //register1 to register2
+		instruction adc1_pref = { 01100110, 00010001, 11, reg16W1 as reg1, reg16W1 as reg2 }; //16-bit reg to reg
+
+/*		instruction adc2 = { 0001010, sequence Wand2args };  //register2 to register1
+		instruction adc2_pref = { 01100110, 00010011, 11, reg16W1 as reg1, reg16W1 as reg2 }; //16-bit reg to reg*/
+	
+		instruction adc3_8 = {00010010, sequence rmModByte8};
+		instruction adc3_pref = {01100110, 0001 0011, sequence rmModByte16};
+		instruction adc3_32 = {00010011, sequence rmModByte32};
+
+		instruction adc4_8 = {00010000, sequence rmModByte8};
+		instruction adc4_pref = {01100110, 0001 0001, sequence rmModByte16};
+		instruction adc4_32 = {00010001, sequence rmModByte32};
+
+			
+		instruction adc6_8 = { 00010100, imm8 as imm8 };
+		instruction adc6_pref = { 01100110, 0001 0101, imm16 as imm16};
+		instruction adc6_32 = { 00010101, imm32 as imm32};
+//TODO:		immediate to r/m
+
+		/* Unsigned Integer Addition of Two Operands with Carry Flag */
+		instruction adcxReg = {01100110, 00001111, 00111000, 11110110,11, reg32NW as reg1, reg32NW as reg2 };
+		instruction adcxMem = {01100110, 00001111, 00111000, 11110110, sequence rmModByte32 };
+
+	        /* Add */
+		instruction add1 = { 0000000, sequence Wand2args };  //register1 to register2
+		instruction add1_pref = { 01100110, 00000001, 11, reg16W1 as reg1, reg16W1 as reg2 }; //16-bit reg to reg
+
+/*		instruction add2 = { 0000010, sequence Wand2args };  //register2 to register1
+		instruction add2_pref = { 01100110, 00000011, 11, reg16W1 as reg1, reg16W1 as reg2 }; //16-bit reg to reg*/
+	
+		instruction add3_8 = {00000010, sequence rmModByte8};
+		instruction add3_pref = {01100110, 0000 0011, sequence rmModByte16};
+		instruction add3_32 = {00000011, sequence rmModByte32};
+
+		instruction add4_8 = {00000000, sequence rmModByte8};
+		instruction add4_pref = {01100110, 0000 0001, sequence rmModByte16};
+		instruction add4_32 = {00000001, sequence rmModByte32};
+			
+		instruction add6_8 = { 00000100, imm8 as imm8 };
+		instruction add6_pref = { 01100110, 00000101, imm16 as imm16};
+		instruction add6_32 = { 00000101, imm32 as imm32};
+//TODO:		immediate to r/m
+		
+		/* Unsigned Integer Addition of Two Operands with Overflow Flag */
+		instruction adoxReg = { 11110011, 00001111, 00111000, 11110110,11, reg32NW as reg1, reg32NW as reg2 };
+		instruction adoxMem = { 11110011, 00001111, 00111000, 11110110, sequence rmModByte32 };
+		
+		/* Logical AND*/
+		instruction and1      = { 0010 000, sequence Wand2args };  //register1 to register2
+		instruction and1_pref = { 01100110, 00100001, 11, reg16W1 as reg1, reg16W1 as reg2 }; //16-bit reg to reg
+
+/*		instruction and2 = { 0000010, sequence Wand2args };  //register2 to register1
+		instruction and2_pref = { 01100110, 00000011, 11, reg16W1 as reg1, reg16W1 as reg2 }; //16-bit reg to reg*/
+	
+		instruction and3_8    = {           0010 0010, sequence rmModByte8};
+		instruction and3_pref = { 01100110, 0010 0011, sequence rmModByte16};
+		instruction and3_32   = {           0010 0011, sequence rmModByte32};
+
+		instruction and4_8    = {           00100000, sequence rmModByte8};
+		instruction and4_pref = { 01100110, 00100001, sequence rmModByte16};
+		instruction and4_32   = {           00100001, sequence rmModByte32};
+			
+		instruction and6_8    = {           0010 0100, imm8 as imm8 };
+		instruction and6_pref = { 01100110, 0010 0101, imm16 as imm16};
+		instruction and6_32   = {           0010 0101, imm32 as imm32};
+//TODO:		immediate to r/m
+
+		/* Adjust RPL Field of Segment Selector  */
+		instruction arplReg = { 01100011,11, reg16NW as reg1, reg16NW as reg2 };
+		instruction arplMem = { 01100011, sequence rmModByte16 };
+
+		/* Check Array Index Against Bounds */
+		instruction bound16 = { 01100110, 01100010, sequence rmModByte16 };
+		instruction bound32 = {           01100010, sequence rmModByte32 };
+
+		/* Bit Scan Forward */
+		instruction bsf1_16 = { 01100110, 00001111, 10111100, 11, reg16NW as reg1, reg16NW as reg2 };
+		instruction bsf1_32 = {           00001111, 10111100, 11, reg32NW as reg1, reg32NW as reg2 };
+
+		instruction bsf2_16 = { 01100110, 00001111, 10111100, sequence rmModByte16 }; 
+		instruction bsf2_32 = {           00001111, 10111100, sequence rmModByte32 };
+
+		/* Bit Scan Reverse */
+		instruction bsr1_16 = { 01100110, 00001111, 10111101, 11, reg16NW as reg1, reg16NW as reg2 };
+		instruction bsr1_32 = {           00001111, 10111101, 11, reg32NW as reg1, reg32NW as reg2 };
+		              
+		instruction bsr2_16 = { 01100110, 00001111, 10111101, sequence rmModByte16 }; 
+		instruction bsr2_32 = {           00001111, 10111101, sequence rmModByte32 };
+
+		/* Byte swap  */
+		instruction bswap = { 00001111, 11001, reg32NW as reg };
+
+		/* Bit Test */
+		instruction btReg_16 = { 01100110, 00001111, 1010 0011, 11, reg16NW as reg1, reg16NW as reg2 };
+		instruction btReg_32 = {           00001111, 1010 0011, 11, reg32NW as reg1, reg32NW as reg2 };
+		instruction btSib_16 = { 01100110, 00001111, 1010 0011, sequence rmModByte16 };
+		instruction btSib_32 = {           00001111, 1010 0011, sequence rmModByte32  };
+//TODO:imm to r/m  and check [] (invalid?)
+//		instruction btImm16 = { 01100110, 00001111, 10111010,  11100 reg16NW as reg, imm32 as imm };
+
+		/* Bit test and complement */
+		instruction btcReg_16 = { 01100110, 00001111, 1011 1011, 11, reg16NW as reg1, reg16NW as reg2 };
+		instruction btcReg_32 = {           00001111, 1011 1011, 11, reg32NW as reg1, reg32NW as reg2 };
+		instruction btcSib_16 = { 01100110, 00001111, 1011 1011, sequence rmModByte16 };
+		instruction btcSib_32 = {           00001111, 1011 1011, sequence rmModByte32  };
+//TODO:imm to r/m 
+
+		/* Bit test and reset */
+		instruction btrReg_16 = { 01100110, 00001111, 1011 0011, 11, reg16NW as reg1, reg16NW as reg2 };
+		instruction btrReg_32 = {           00001111, 1011 0011, 11, reg32NW as reg1, reg32NW as reg2 };
+		instruction btrSib_16 = { 01100110, 00001111, 1011 0011, sequence rmModByte16 };
+		instruction btrSib_32 = {           00001111, 1011 0011, sequence rmModByte32  };
+//TODO:imm to r/m 
+
+		/* Bit test and set */
+		instruction btsReg_16 = { 01100110, 00001111, 1010 1011, 11, reg16NW as reg1, reg16NW as reg2 };
+		instruction btsReg_32 = {           00001111, 1010 1011, 11, reg32NW as reg1, reg32NW as reg2 };
+		instruction btsSib_16 = { 01100110, 00001111, 1010 1011, sequence rmModByte16 };
+		instruction btsSib_32 = {           00001111, 1010 1011, sequence rmModByte32  };
+//TODO:imm to r/m 
+
+
+		/*Convert Byte to Word*/
+		instruction cbw = { 01100110, 10011000 };  // smth strange with mnemonics  cwd & cdq / cwde & cbw
+
+		/*Convert Doubleword to Qword*/
+		instruction cdq = { 10011001 };
+
+		/*Clear Carry Flag */
+		instruction clc = { 11111000 };
+
+		/*Clear Direction Flag*/
+		instruction cld = { 11111100 };
+
+		/*Clear Interrupt Flag*/
+		instruction cli = { 11111010 };
+
+		/*Clear Task-Switched Flag in CR0*/
+		instruction clts = { 00001111, 00000110  };
+
+		/*Complement Carry Flag*/
+		instruction cmc = { 11110101  };
+
+		/*CPU Identification*/
+		instruction cpuid = { 00001111, 10100010  };
+
+		/*Convert Word to Doubleword*/
+		instruction cwd = { 01100110,10011001  };
+
+		/*Convert Word to Doubleword*/
+		instruction cwde = { 10011000 };
+
+		/*Decimal Adjust AL after Addition*/
+		instruction daa = { 00100111  };
+
+		/*Decimal Adjust AL after Subtraction*/
+		instruction das = { 00101111  };
+
+		/* Decrement by 1*/
+		instruction dec1_8    = { 11111110, 11001, reg16W0 as reg };
+		instruction dec1_pref = { 01100110, 11111111, 11001, reg16W1 as reg };
+		instruction dec1_32   = { 11111111, 11001, reg32W1 as reg };
+		//TODO
+		
+		/* Halt */
+		instruction hlt = { 11110100 };
+
+		/* Increment by 1 */
+		/* instruction inc1 = { 1111 111w, 11 000 reg }; */
+		/* instruction inc2 = { 0100 0 reg }; */
+		/* instruction inc3 = { 1111 111w, mod 000 r/m }; */
+
+		/*Single-Step Interrupt*/ 
+		instruction int3 = { 11001100  };
+		instruction int = { 11001101, imm8 as imm };
+
+		/* Input from port*/
+		instruction in1_8  = { 11100100, imm8 as imm};
+		instruction in1_16 = { 01100110, 11100101, imm8 as imm };
+		instruction in1_32 = { 11100101, imm8 as imm};
+		
+		instruction in2_8  = { 11101100 };
+		instruction in2_16 = { 01100110, 11101101 };
+		instruction in2_32 = { 11101101 };
+		
+
+		/*Interrupt 4 on Overflow*/
+		instruction into = { 11001110  };
+
+		/*Invalidate Cache*/ 
+		instruction invd = { 00001111, 00001000  };
+
+
+	        /* No Operation */
+	        instruction nop = { 10010000 }{
+			EIP = EIP + 1;			
+		};
+	
+	        /* Multi-byte No Operation1 */
+	/*        instruction nop1 = { 0000 1111 0001 1111, 11 000 reg };
+	        instruction nop2 = { 0000 1111 0001 1111, mod 000 r/m };*/
+
+		/* Output to port */
+		instruction out1_8  = { 11100110, imm8 as imm};
+		instruction out1_16 = { 01100110, 11100111, imm8 as imm};
+		instruction out1_32 = { 11100111, imm8 as imm};
+		
+		instruction out2_8  = { 11101110 };
+		instruction out2_16 = { 01100110, 11101111 };
+		instruction out2_32 = { 11101111 };
+
+		/* Push All General-Purpose Registers  */
+                instruction pusha  = { 01100000 };
+//??		instruction pushad = { 01100000 };
+		
+		/* Push EFLAGS Register onto the Stack */
+		instruction pushf  = { 10011100 };
+//??		instruction pushfd = { 10011100 };		
+
+		/* Read from Model-Specific Register */
+		instruction rdmsr = { 00001111, 00110010  };
+
+		/* Read Performance Monitoring Counters */
+		instruction rdpmc = { 00001111, 00110011  };
+
+		/* Read Time-Stamp Counter */
+		instruction rdtsc = { 00001111, 00110001  };
+
+		/* Read Time-Stamp Counter and Processor ID */
+		instruction rdtscp = { 00001111, 00000001, 11111001  };
+
+		/* Return from Procedure (to same segment) */
+		instruction ret = { 11000011 };
+		instruction ret_disp = { 11000010, disp16 as disp }; 
+
+
+		/*Resume from System Management Mode*/
+		instruction rsm = { 00001111, 1010 1010  };
+
+		/*Store AH into Flags*/
+		instruction sahf = { 10011110  };
+
+	
+		/* Logical Exclusive OR */
+		/* instruction xor1 = { 0011 000w, 11 reg1 reg2 }; */
+		/* instruction xor2 = { 0011 001w, 11 reg1 reg2 }; */
+		/* instruction xor3 = { 0011 001w, modRegRM }; */
+		/* instruction xor4 = { 0011 000w, modRegRM }; */
+		/* instruction xor5 = { 1000 00sw, 11 110 reg, immediate data }; */
+		/* instruction xor6 = { 0011 010w, immediate data }; */
+		/* instruction xor7 = { 1000 00sw, mod 110 r/m, immediate data }; */
+
+
+
+
+
+//		instruction check1 = {11111111, imm8 as imm};
+//		instruction check2 = {11111101, imm32 as imm};		
+    mnemonics:
+		format plain1 is "{1}";
+		format plain2 is "{2}, {1}";
+		format WEncode of (reg1, reg2) "{2}, {1}" when w32bit, 
+				  (reg1, reg2) "{2}, {1}" when w8bit; 
+
+//		format check is "{1}";
+//		mnemonic check for check1 (imm) check;
+//		mnemonic check for check2 (disp) check;
+
+
+	        /* ASCII Adjust after Addition */
+	        mnemonic aaa();
+		
+		/* ASCII adjusy AX before division */
+//		mnemonic aad for aad1();
+		mnemonic aad for aad2( imm ) plain1;  // not presented in first version
+
+		/* ASCII Adjust AX After Multiply  */
+//		mnemonic aam for aam1();
+		mnemonic aam for aam2( imm ) plain1;  // not presented in first version
+
+		/* ASCII Adjust AL After Subtraction */
+		mnemonic aas for aas();
+
+		/* ADD with Carry */
+	        mnemonic adc for adc1 (...) WEncode;
+	        mnemonic adc for adc1_pref ( reg1, reg2 ) plain2;
+
+		mnemonic adc for adc3_8 (...) mem-to-reg;
+		mnemonic adc for adc3_pref (...) mem-to-reg;
+		mnemonic adc for adc3_32 (...) mem-to-reg;
+
+		mnemonic adc for adc4_8 (...) reg-to-mem;
+		mnemonic adc for adc4_pref (...) reg-to-mem;
+		mnemonic adc for adc4_32 (...) reg-to-mem;		
+
+	        mnemonic adc for adc6_8 ( imm8, registers.AL ) plain2,
+			     for adc6_pref ( imm16, registers.AX ) plain2,
+			     for adc6_32 ( imm32, registers.EAX ) plain2;
+
+		/* Unsigned Integer Addition of Two Operands with Carry Flag  */
+		mnemonic adcx for adcxReg(reg1,reg2) plain2;
+		mnemonic adcx for adcxMem(...) mem-to-reg;
+
+
+	        /* Add */
+	        mnemonic add for add1 (...) WEncode;
+	        mnemonic add for add1_pref ( reg1, reg2 ) plain2;
+
+/*	        mnemonic add for add2 (...) WEncode;
+	        mnemonic add for add2_pref ( reg1, reg2 ) plain2;
+*/
+		mnemonic add for add3_8 (...) mem-to-reg;
+		mnemonic add for add3_pref (...) mem-to-reg;
+		mnemonic add for add3_32 (...) mem-to-reg;
+
+		mnemonic add for add4_8 (...) reg-to-mem;
+		mnemonic add for add4_pref (...) reg-to-mem;
+		mnemonic add for add4_32 (...) reg-to-mem;		
+
+	        mnemonic add for add6_8 ( imm8, registers.AL ) plain2,
+			     for add6_pref ( imm16, registers.AX ) plain2,
+			     for add6_32 ( imm32, registers.EAX ) plain2;
+
+		/* Unsigned Integer Addition of Two Operands with Overflow Flag */
+		mnemonic adox for adoxReg(reg1,reg2) plain2;
+		mnemonic adox for adoxMem(...) mem-to-reg;
+
+		/* Logical AND*/
+	        mnemonic AND for and1 (...) WEncode;
+	        mnemonic AND for and1_pref ( reg1, reg2 ) plain2;
+
+		mnemonic AND for and3_8 (...) mem-to-reg;
+		mnemonic AND for and3_pref (...) mem-to-reg;
+		mnemonic AND for and3_32 (...) mem-to-reg;
+
+		mnemonic AND for and4_8 (...) reg-to-mem;
+		mnemonic AND for and4_pref (...) reg-to-mem;
+		mnemonic AND for and4_32 (...) reg-to-mem;		
+
+	        mnemonic AND for and6_8 ( imm8, registers.AL ) plain2,
+			     for and6_pref ( imm16, registers.AX ) plain2,
+			     for and6_32 ( imm32, registers.EAX ) plain2;
+
+		/* Adjust RPL Field of Segment Selector  */
+		mnemonic arpl for arplReg (reg1,reg2) plain2;
+		mnemonic arpl for arplMem (...) reg-to-mem;
+
+		/* Check Array Index Against Bounds */
+		mnemonic bound for bound16 (...) mem-to-reg;
+		mnemonic bound for bound32 (...) mem-to-reg;
+
+		/* Bit Scan Forward */
+		mnemonic bsf for bsf1_16 (reg1, reg2) plain2;
+		mnemonic bsf for bsf1_32 (reg1, reg2) plain2;
+
+		mnemonic bsf for bsf2_16 (...) mem-to-reg;
+		mnemonic bsf for bsf2_32 (...) mem-to-reg;
+
+		/* Bit Scan Reverse */
+		mnemonic bsr for bsr1_16 (reg1, reg2) plain2;
+		mnemonic bsr for bsr1_32 (reg1, reg2) plain2;
+		              
+		mnemonic bsr for bsr2_16 (...) mem-to-reg;
+		mnemonic bsr for bsr2_32 (...) mem-to-reg;
+
+		
+		/* Byte swap */
+		mnemonic bswap for bswap ( reg ) plain1;
+
+		/* Bit Test */	
+		mnemonic bt for btReg_16(reg1, reg2)plain2;
+		mnemonic bt for btReg_32(reg1, reg2)plain2;
+		mnemonic bt for btSib_16(...) reg-to-mem;
+		mnemonic bt for btSib_32(...) reg-to-mem;
+		
+//		mnemonic bt for btImm16( imm8, reg ) plain2;
+//		mnemonic bt for btImm32( imm8, reg ) plain2;
+
+		/* Bit Test and Complement  */
+		mnemonic btc for btcReg_16(reg1, reg2)plain2;
+		mnemonic btc for btcReg_32(reg1, reg2)plain2;
+		mnemonic btc for btcSib_16(...) reg-to-mem;
+		mnemonic btc for btcSib_32(...) reg-to-mem;
+
+		/* Bit Test and Reset  */
+		mnemonic btr for btrReg_16(reg1, reg2)plain2;
+		mnemonic btr for btrReg_32(reg1, reg2)plain2;
+		mnemonic btr for btrSib_16(...) reg-to-mem;
+		mnemonic btr for btrSib_32(...) reg-to-mem;
+
+		/* Bit Test and Set  */
+		mnemonic bts for btsReg_16(reg1, reg2)plain2;
+		mnemonic bts for btsReg_32(reg1, reg2)plain2;
+		mnemonic bts for btsSib_16(...) reg-to-mem;
+		mnemonic bts for btsSib_32(...) reg-to-mem;
+				
+		/*Convert Byte to Word*/
+		mnemonic cbw for cbw ();
+
+		/*Convert Doubleword to Qword*/
+		mnemonic cdq for cdq ();
+
+		/*Clear Carry Flag 1111*/
+		mnemonic  clc for clc ();
+
+		/*Clear Direction Flag*/ 
+		mnemonic cld for cld ();
+
+		/*Clear Interrupt Flag*/
+		mnemonic cli for cli ();
+
+		/*Clear Task-Switched Flag in CR0*/
+		mnemonic clts for clts ();
+
+		/*Complement Carry Flag*/
+		mnemonic cmc for cmc ();
+
+		/*CPU Identification*/
+		mnemonic cpuid for cpuid ();
+
+		/*Convert Word to Doubleword*/
+		mnemonic cwd for cwd ();
+
+		/*Convert Word to Doubleword*/
+		mnemonic cwde for cwde ();
+
+		/*Decimal Adjust AL after Addition*/
+		mnemonic daa for daa ();
+
+		/*Decimal Adjust AL after Subtraction*/
+		mnemonic das for das ();
+		
+		/* Decrement by 1 */
+		mnemonic dec for dec1_8    ( reg ) plain1;
+		mnemonic dec for dec1_pref ( reg ) plain1;
+		mnemonic dec for dec1_32   ( reg ) plain1;
+
+
+		/* Halt */
+		mnemonic hlt for hlt ();
+
+		/* Input from port */
+		mnemonic in for in1_8  ( imm, registers.AL) plain2;
+		mnemonic in for in1_16 ( imm, registers.AX) plain2;
+		mnemonic in for in1_32 ( imm, registers.EAX) plain2;
+		
+		mnemonic in for in2_8  (registers.DX, registers.AL) plain2;
+		mnemonic in for in2_16 (registers.DX, registers.AX) plain2;
+		mnemonic in for in2_32 (registers.DX, registers.EAX) plain2;
+
+		/* Increment by 1 */
+	/*	mnemonic inc for inc1( w,   reg) "";
+		mnemonic inc for inc2(  reg) "";
+		mnemonic inc for inc3( w, mod  r/m) "";*/
+
+		/*Single-Step Interrupt*/ 
+		mnemonic int3 for int3 ();
+		mnemonic int for int ( imm ) plain1;
+
+		/*Interrupt 4 on Overflow*/
+		mnemonic into for into ();
+
+		/*Invalidate Cache*/ 
+		mnemonic invd for invd ();
+
+		/* Two's Complement Negation */
+	/*	mnemonic neg for neg1( w,   reg) "";
+		mnemonic neg for neg2( w, mod  r/m) "";*/
+	
+
+	        /* No Operation */
+	        mnemonic nop();
+
+	        /* Multi-byte No Operation1 */
+	/*      mnemonic nop for nop1(   ,   reg) "";
+	        mnemonic nop for nop2(   , mod  r/m) "";*/
+	
+		/* One's Complement Negation */
+	/*	mnemonic not for not1( w,   reg) "";
+		mnemonic not for not2( w, mod  r/m) "";*/
+
+		/* Output to port */
+		mnemonic out for out1_8  ( registers.AL,  imm) plain2;
+		mnemonic out for out1_16 ( registers.AX,  imm) plain2;
+		mnemonic out for out1_32 ( registers.EAX, imm) plain2;
+		
+		mnemonic out for out2_8  ( registers.AL, registers.DX  ) plain2;
+		mnemonic out for out2_16 ( registers.AX, registers.DX  ) plain2;
+		mnemonic out for out2_32 ( registers.EAX, registers.DX ) plain2;
+
+		/* Push All General-Purpose Registers  */
+                mnemonic pusha  for pusha (); 
+//		mnemonic pushad for pushad ();
+		
+		/* Push EFLAGS Register onto the Stack */
+		mnemonic pushf  for pushf ();
+//		mnemonic pushfd for pushfd ();
+
+		/* Read from Model-Specific Register */
+		mnemonic rdmsr for rdmsr ();
+
+		/* Read Performance Monitoring Counters */
+		mnemonic rdpmc for rdpmc ();
+
+		/* Read Time-Stamp Counter */
+		mnemonic rdtsc for rdtsc ();
+
+		/* Read Time-Stamp Counter and Processor ID */
+		mnemonic rdtscp for rdtscp ();
+
+		/* Return from Procedure (to same segment) */
+		mnemonic ret for ret ();
+		mnemonic ret for ret_disp ( disp ) plain1; 
+
+		/*Resume from System Management Mode*/
+		mnemonic rsm for rsm ();
+	
+		/*Store AH into Flags*/
+		mnemonic sahf for sahf ();
+
+		/* Logical Exclusive OR */
+		/* mnemonic xor for xor1( w,  reg reg) ""; */
+		/* mnemonic xor for xor2( w,  reg reg) ""; */
+		/* mnemonic xor for xor3( w, modRegRM) ""; */
+		/* mnemonic xor for xor4( w, modRegRM) ""; */
+		/* mnemonic xor for xor5( sw,   reg, immediate data) ""; */
+		/* mnemonic xor for xor6( w, immediate data) ""; */
+		/* mnemonic xor for xor7( sw, mod  r/m, immediate data) ""; */
+
+
+		// To be continued 
+}
