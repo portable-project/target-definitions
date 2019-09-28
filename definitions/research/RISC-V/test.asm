@@ -1,0 +1,7 @@
+lui a5,0x10 
+beq ra, sp, 0x10 
+bne ra, sp, 0x10 
+blt ra, sp, 0x10 
+bge ra, sp, 0x10 
+bltu ra, sp, 0x10
+bgeu ra, sp, 0x10 

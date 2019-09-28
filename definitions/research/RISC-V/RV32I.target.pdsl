@@ -1,0 +1,273 @@
+architecture RV32I {
+	registers:
+		storage x0[32];
+		storage x1[32];
+		storage x2[32];
+		storage x3[32];
+		storage x4[32];
+		storage x5[32];
+		storage x6[32];
+		storage x7[32];
+		storage x8[32];
+		storage x9[32];
+		storage x10[32];
+		storage x11[32];
+		storage x12[32];
+		storage x13[32];
+		storage x14[32];
+		storage x15[32];
+		storage x16[32];
+		storage x17[32];
+		storage x18[32];
+		storage x19[32];
+		storage x20[32];
+		storage x21[32];
+		storage x22[32];
+		storage x23[32];
+		storage x24[32];
+		storage x25[32];
+		storage x26[32];
+		storage x27[32];
+		storage x28[32];
+		storage x29[32];
+		storage x30[32];
+		storage x31[32];
+
+		storage pc_s[32];
+
+		view zero = x0;
+		view ra = x1;
+		view sp = x2;
+		view gp = x3;
+		view tp = x4;
+		view t0 = x5;
+		view t1 = x6;
+		view t2 = x7;
+		view s0 = x8;
+		view s1 = x9;
+		view a0 = x10;
+		view a1 = x11;
+		view a2 = x12;
+		view a3 = x13;
+		view a4 = x14;
+		view a5 = x15;
+		view a6 = x16;
+		view a7 = x17;
+		view s2 = x18;
+		view s3 = x19;
+		view s4 = x20;
+		view s5 = x21;
+		view s6 = x22;
+		view s7 = x23;
+		view s8 = x24;
+		view s9 = x25;
+		view s10 = x26;
+		view s11 = x27;
+		view t3 = x28;
+		view t4 = x29;
+		view t5 = x30;
+		view t6 = x31;
+
+		view pc = pc_s;
+
+	memory:
+		range RAM[0x00000000..0xFFFFFFFF] {
+			cell = 8;
+            endianess = big-endian;
+            granularity = 0;
+		}
+
+	instructions:
+		encode imm12 field = immediate[12] data;
+		encode imm20 field = immediate[20] data;
+		encode imm1 field = immediate[1] data;
+		encode imm10 field = immediate[10] data;
+		encode imm8 field = immediate[8] data;
+		encode imm6 field = immediate[6] data;
+		encode imm4 field = immediate[4] data;
+		encode imm7 field = immediate[7] data;
+		encode imm5 field = immediate[5] data;
+
+
+
+		encode reg32 field = register{
+			zero = 00000,
+			ra = 00001,
+			sp = 00010,
+			gp = 00011,
+			tp = 00100,
+			t0 = 00101,
+			t1 = 00110,
+			t2 = 00111,
+			s0 = 01000,
+			s1 = 01001,
+			a0 = 01010,
+			a1 = 01011,
+			a2 = 01100,
+			a3 = 01101,
+			a4 = 01110,
+			a5 = 01111,
+			a6 = 10000,
+			a7 = 10001,
+			s2 = 10010,
+			s3 = 10011,
+			s4 = 10100,
+			s5 = 10101,
+			s6 = 10110,
+			s7 = 10111,
+			s8 = 11000,
+			s9 = 11001,
+			s10 = 11010,
+			s11 = 11011,
+			t3 = 11100,
+			t4 = 11101,
+			t5 = 11110,
+			t6 = 11111
+		};
+
+		instruction LUI = {imm20 as imm, reg32 as rd, 0110111}; 
+		instruction AUIPC = {imm20 as imm, reg32 as rd, 0010111};
+
+		instruction JAL = {imm20 as imm, reg32 as rd, 1101111};
+		/*
+		//?????????????????????????????????????????????????????????????????????????????????????????????????????
+		instruction JAL = {imm1 as imm20, imm10 as imm10to1 , imm1 as imm11, imm8 as imm19to12, reg32 as rd, 1101111} {
+			let imm = imm20 * 0x8000  + imm19to12 * 0x1000 + imm11 * 0x800 + imm10to1;
+		};
+		*/
+
+		instruction JALR = {imm12 as imm, reg32 as rs1, 000, reg32 as rd, 1100111};
+		instruction BEQ = {imm12 as imm, reg32 as rs1, 001, reg32 as rs2, 1100011};
+		instruction BNE = {imm12 as imm, reg32 as rs1, 010, reg32 as rs2, 1100011};
+		instruction BLT = {imm12 as imm, reg32 as rs1, 100, reg32 as rs2, 1100011};
+		instruction BGE = {imm12 as imm, reg32 as rs1, 101, reg32 as rs2, 1100011};
+		instruction BLTU = {imm12 as imm, reg32 as rs1, 110, reg32 as rs2, 1100011};
+		instruction BGEU = {imm12 as imm, reg32 as rs1, 111, reg32 as rs2, 1100011};
+
+		
+		/*
+		//?????????????????????????????????????????????????????????????????????????????????????????????????????
+		instruction BEQ = {imm1 as imm12, imm6 as imm10to5, reg32 as rs2, reg32 as rs1, 000, imm4 as imm4to1, imm1 as imm11, 1100011} {
+			let imm = imm12 * 0X1000 + imm11 * 0x800 + imm10to5 * 0x20 + imm4to1; 
+		};
+		instruction BNE = {imm1 as imm12, imm6 as imm10to5, reg32 as rs2, reg32 as rs1, 001, imm4 as imm4to1, imm1 as imm11, 1100011} {
+			let imm = imm12 * 0X1000 + imm11 * 0x800 + imm10to5 * 0x20 + imm4to1; 
+		};
+		instruction BLT = {imm1 as imm12, imm6 as imm10to5, reg32 as rs2, reg32 as rs1, 100, imm4 as imm4to1, imm1 as imm11, 1100011} {
+			let imm = imm12 * 0X1000 + imm11 * 0x800 + imm10to5 * 0x20 + imm4to1; 
+		};
+		instruction BGE = {imm1 as imm12, imm6 as imm10to5, reg32 as rs2, reg32 as rs1, 101, imm4 as imm4to1, imm1 as imm11, 1100011} {
+			let imm = imm12 * 0X1000 + imm11 * 0x800 + imm10to5 * 0x20 + imm4to1; 
+		};
+		instruction BLTU = {imm1 as imm12, imm6 as imm10to5, reg32 as rs2, reg32 as rs1, 110, imm4 as imm4to1, imm1 as imm11, 1100011} {
+			let imm = imm12 * 0X1000 + imm11 * 0x800 + imm10to5 * 0x20 + imm4to1; 
+		};
+		instruction BGEU = {imm1 as imm12, imm6 as imm10to5, reg32 as rs2, reg32 as rs1, 111, imm4 as imm4to1, imm1 as imm11, 1100011} {
+			let imm = imm12 * 0X1000 + imm11 * 0x800 + imm10to5 * 0x20 + imm4to1; 
+		};
+		*/
+
+		instruction LB = {imm12 as imm, reg32 as rs1, 000, reg32 as rd, 0000011} {};
+		instruction LH = {imm12 as imm, reg32 as rs1, 001, reg32 as rd, 0000011} {};
+		instruction LW = {imm12 as imm, reg32 as rs1, 010, reg32 as rd, 0000011} {};
+		instruction LBU = {imm12 as imm, reg32 as rs1, 110, reg32 as rd, 0000011} {};
+		instruction LHU = {imm12 as imm, reg32 as rs1, 111, reg32 as rd, 0000011} {};
+	
+
+		/*
+		//?????????????????????????????????????????????????????????????????????????????????????????????????????
+		instruction SB = {imm7 as imm11to5, reg32 as rs2, 000, imm5 as imm4to0, 0100011} {
+			let imm = imm11to5 * 0x40 + imm4to0;
+		};
+		instruction SH = {imm7 as imm11to5, reg32 as rs2, 001, imm5 as imm4to0, 0100011} {
+			let imm = imm11to5 * 0x40 + imm4to0;
+		};
+		instruction SW = {imm7 as imm11to5, reg32 as rs2, 010, imm5 as imm4to0, 0100011} {
+			let imm = imm11to5 * 0x40 + imm4to0;
+		};
+		*/
+
+		instruction ADDI = {imm12 as imm, reg32 as rs1, 000, reg32 as rd, 0010011} {};
+		instruction SLTI = {imm12 as imm, reg32 as rs1, 010, reg32 as rd, 0010011} {};
+		instruction SLTIU = {imm12 as imm, reg32 as rs1, 011, reg32 as rd, 0010011} {};
+		instruction XORI = {imm12 as imm, reg32 as rs1, 100, reg32 as rd, 0010011} {};
+		instruction ORI = {imm12 as imm, reg32 as rs1, 010, reg32 as rd, 0010011} {};
+		instruction ANDI = {imm12 as imm, reg32 as rs1, 111, reg32 as rd, 0010011} {};
+
+		instruction SLLI = {0000000, imm5 as imm, reg32 as rs1, 001, reg32 as rd, 0010011} {};
+		instruction SRLI = {0000000, imm5 as imm, reg32 as rs1, 101, reg32 as rd, 0010011} {};
+		instruction SRAI = {0100000, imm5 as imm, reg32 as rs1, 101, reg32 as rd, 0010011} {};
+
+		instruction ADD = {0000000, reg32 as rs2, reg32 as rs1, 000, reg32 as rd, 0110011} {};
+		instruction SUB = {0100000, reg32 as rs2, reg32 as rs1, 000, reg32 as rd, 0110011} {};
+		instruction SLL = {0000000, reg32 as rs2, reg32 as rs1, 001, reg32 as rd, 0110011} {};
+		instruction SLT = {0000000, reg32 as rs2, reg32 as rs1, 010, reg32 as rd, 0110011} {};
+		instruction SLTU = {0000000, reg32 as rs2, reg32 as rs1, 011, reg32 as rd, 0110011} {};
+		instruction XOR = {0000000, reg32 as rs2, reg32 as rs1, 100, reg32 as rd, 0110011} {};
+		instruction SRL = {0000000, reg32 as rs2, reg32 as rs1, 101, reg32 as rd, 0110011} {};
+		instruction SRA = {0100000, reg32 as rs2, reg32 as rs1, 101, reg32 as rd, 0110011} {};
+		instruction OR = {0000000, reg32 as rs2, reg32 as rs1, 110, reg32 as rd, 0110011} {};
+		instruction AND = {0000000, reg32 as rs2, reg32 as rs1, 111, reg32 as rd, 0110011} {};
+
+		instruction FENCE = {0000, imm4 as pred, imm4 as succ, 00000000000000001111} {};
+
+	mnemonics:
+		format rd_imm is "{1}, {2}";
+		format p_s is "{1}, {2}";
+		format rd_rs_imm is "{1}, {2}, {3}";
+		format rs1_rs2_imm is "{1}, {2}, {3}";
+		format rd_rs1_rs2 is "{1}, {2}, {3}";
+
+		mnemonic LUI for LUI(rd, imm) rd_imm;
+		mnemonic AUIPC for AUIPC(rd, imm) rd_imm;
+
+		//*?*/
+		mnemonic JAL for JAL(rd, imm) rd_imm;
+
+		mnemonic JALR for JALR(rd, rs1, imm) rd_rs_imm;
+
+		//*?*/
+		mnemonic BEQ for BEQ(rs1, rs2, imm) rs1_rs2_imm;
+		mnemonic BNE for BNE(rs1, rs2, imm) rs1_rs2_imm;
+		mnemonic BLT for BLT(rs1, rs2, imm) rs1_rs2_imm;
+		mnemonic BGE for BGE(rs1, rs2, imm) rs1_rs2_imm;
+		mnemonic BLTU for BLTU(rs1, rs2, imm) rs1_rs2_imm;
+		mnemonic BGEU for BGEU(rs1, rs2, imm) rs1_rs2_imm;
+		//*?*/
+
+		mnemonic LB for LB(rd, rs1, imm) rd_rs_imm;
+		mnemonic LH for LH(rd, rs1, imm) rd_rs_imm;
+		mnemonic LW for LW(rd, rs1, imm) rd_rs_imm;
+		mnemonic LBU for LBU(rd, rs1, imm) rd_rs_imm;
+		mnemonic LHU for LHU(rd, rs1, imm) rd_rs_imm;
+		
+		//*?*/mnemonic SB for SB(rs1, rs2, imm) rs1_rs2_imm;
+		//*?*/mnemonic SH for SB(rs1, rs2, imm) rs1_rs2_imm;
+		//*?*/mnemonic SW for SB(rs1, rs2, imm) rs1_rs2_imm;
+
+		mnemonic ADDI for ADDI(rd, rs1,imm) rd_rs_imm;
+		mnemonic SLTI for SLTI(rd, rs1,imm) rd_rs_imm;
+		mnemonic SLTIU for SLTIU(rd, rs1,imm) rd_rs_imm;
+		mnemonic XORI for XORI(rd, rs1,imm) rd_rs_imm;
+		mnemonic ORI for ORI(rd, rs1,imm) rd_rs_imm;
+		mnemonic ANDI for ANDI(rd, rs1,imm) rd_rs_imm;
+		
+		/* shamt block */
+		mnemonic SLLI for SLLI(rd, rs1,imm) rd_rs_imm;
+		mnemonic SRLI for SRLI(rd, rs1,imm) rd_rs_imm;
+		mnemonic SRAI for SRAI(rd, rs1,imm) rd_rs_imm;
+		/*shamt block */
+
+		mnemonic ADD for ADD(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic SUB for SUB(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic SLL for SLL(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic SLT for SLT(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic SLTU for SLTU(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic XOR for XOR(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic SRL for SRL(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic SRA for SRA(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic OR for OR(rd, rs1, rs2) rd_rs1_rs2;
+		mnemonic AND for AND(rd, rs1, rs2) rd_rs1_rs2;
+
+		mnemonic FENCE for FENCE (pred, succ) p_s;
+}
