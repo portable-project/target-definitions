@@ -1,0 +1,663 @@
+architecture SPARC-V9
+{
+	memory: 
+		// 1. Определения памяти
+		// 1.1. RAM
+		range ram [0x000..0xfff] 
+			{
+			cell = 8;
+			endianess = little-endian;
+			granularity = 0;
+			}
+
+	registers:
+		// 1. определения регистров
+		// 1.1. непривилегированные регистры
+		// 1.1.1. r-регистры общего назначения
+		// 1.1.1.1. глобальные регистры
+		storage _r0[64];
+		storage _r1[64];
+		storage _r2[64];
+		storage _r3[64];
+		storage _r4[64];
+		storage _r5[64];
+		storage _r6[64];
+		storage _r7[64];
+		// 1.1.1.2. регистры окна
+		storage _r8[64];
+		storage _r9[64];
+		storage _r10[64];
+		storage _r11[64];
+		storage _r12[64];
+		storage _r13[64];
+		storage _r14[64];
+		storage _r15[64];
+		storage _r16[64];
+		storage _r17[64];
+		storage _r18[64];
+		storage _r19[64];
+		storage _r20[64];
+		storage _r21[64];
+		storage _r22[64];
+		storage _r23[64];
+		storage _r24[64];
+		storage _r25[64];
+		storage _r26[64];
+		storage _r27[64];
+		storage _r28[64];
+		storage _r29[64];
+		storage _r30[64];
+		storage _r31[64];
+		// 1.1.2. специальные r-регистры
+		// 1.1.2.1. регистры управления/статуса блока целочисленной арифметики
+		// 1.1.2.1.1. счетчики операций
+		storage _pc[64];
+		storage _npc[64];
+		// 1.1.2.1.2. регистр Y 32-битного умножения/деления
+		storage _y[64];
+		// 1.1.3. f-регистры
+		storage _f0[32];
+		storage _f1[32];
+		storage _f2[32];
+		storage _f3[32];
+		storage _f4[32];
+		storage _f5[32];
+		storage _f6[32];
+		storage _f7[32];
+		storage _f8[32];
+		storage _f9[32];
+		storage _f10[32];
+		storage _f11[32];
+		storage _f12[32];
+		storage _f13[32];
+		storage _f14[32];
+		storage _f15[32];
+		storage _f16[32];
+		storage _f17[32];
+		storage _f18[32];
+		storage _f19[32];
+		storage _f20[32];
+		storage _f21[32];
+		storage _f22[32];
+		storage _f23[32];
+		storage _f24[32];
+		storage _f25[32];
+		storage _f26[32];
+		storage _f27[32];
+		storage _f28[32];
+		storage _f29[32];
+		storage _f30[32];
+		storage _f31[32];
+		storage _f32[64];
+		storage _f34[64];
+		storage _f36[64];
+		storage _f38[64];
+		storage _f40[64];
+		storage _f42[64];
+		storage _f44[64];
+		storage _f46[64];
+		storage _f48[64];
+		storage _f50[64];
+		storage _f52[64];
+		storage _f54[64];
+		storage _f56[64];
+		storage _f58[64];
+		storage _f60[64];
+		storage _f62[64];
+		// 1.2. привилегированные регистры
+		// 1.2.1. PSTATE
+		storage _pstate[12];
+		// 1.2.2. регистр trap-уровня
+		storage _tl[3];
+		// 1.2.3. регистр уровня прерываний
+		storage _pil[4];
+		// 1.2.4. траповые счетчики операций
+		storage _tpc[64];
+		// 1.2.5. траповые счтетчики следующей операции
+		storage _tnpc[64];
+		// 1.2.6. регистр типа трапа
+		storage _tt[9];
+		// 1.2.7. регистр базового адреса трапов
+		storage _tba[64];
+		// 1.2.8. регистр версии
+		storage _ver[64];
+		// 1.2.9. регистры состояния регистровых окон
+		// 1.2.9.1. указатель на текущее окон
+		storage _cwp[5];
+		// 1.2.9.2. регистр сохраняемых окон
+		storage _cansave[5];
+		// 1.2.9.3. регистр восстанавливаемых окон 
+		storage _canrestore[5];
+		// 1.2.9.4. регистр других окон
+		storage _otherwin[5];
+		// 1.2.9.5. регистр состояния окон
+		storage _wstate[6];
+		// 1.2.9.6. регистр чистых окон
+		storage _cleanwin[5];
+		// 2. псевдонимы регистров
+		// 2.1. непривилегированные регистры
+		// 2.1.1. r-регистры общего назначения
+		// 2.1.1.1. общие псевдонимы
+		view r0 = _r0;
+		view r1 = _r1;
+		view r2 = _r2;
+		view r3 = _r3;
+		view r4 = _r4;
+		view r5 = _r5;
+		view r6 = _r6;
+		view r7 = _r7;
+		view r8 = _r8;
+		view r9 = _r9;
+		view r10 = _r10;
+		view r11 = _r11;
+		view r12 = _r12;
+		view r13 = _r13;
+		view r14 = _r14;
+		view r15 = _r15;
+		view r16 = _r16;
+		view r17 = _r17;
+		view r18 = _r18;
+		view r19 = _r19;
+		view r20 = _r20;
+		view r21 = _r21;
+		view r22 = _r22;
+		view r23 = _r23;
+		view r24 = _r24;
+		view r25 = _r25;
+		view r26 = _r26;
+		view r27 = _r27;
+		view r28 = _r28;
+		view r29 = _r29;
+		view r30 = _r30;
+		view r31 = _r31;
+		// 2.1.1.2. псевдонимы глобальных регистров
+		view g0 = _r0;
+		view g1 = _r1;
+		view g2 = _r2;
+		view g3 = _r3;
+		view g4 = _r4;
+		view g5 = _r5;
+		view g6 = _r6;
+		view g7 = _r7;
+		// 2.1.1.3. псевдонимы альтернативных глобальных регистов
+		view ag0 = _r0;
+		view ag1 = _r1;
+		view ag2 = _r2;
+		view ag3 = _r3;
+		view ag4 = _r4;
+		view ag5 = _r5;
+		view ag6 = _r6;
+		view ag7 = _r7;
+		// 2.1.1.4. псевдонимы оконных out-регистров
+		view o0 = _r8;
+		view o1 = _r9;
+		view o2 = _r10;
+		view o3 = _r11;
+		view o4 = _r12;
+		view o5 = _r13;
+		view o6 = _r14;
+		view o7 = _r15;
+		// 2.1.1.5. псевдонимы локальных оконных регистров
+		view l0 = _r16;
+		view l1 = _r17;
+		view l2 = _r18;
+		view l3 = _r19;
+		view l4 = _r20;
+		view l5 = _r21;
+		view l6 = _r22;
+		view l7 = _r23;
+		// 2.1.1.6. псевдонимы оконных in-регистров
+		view i0 = _r24;
+		view i1 = _r25;
+		view i2 = _r26;
+		view i3 = _r27;
+		view i4 = _r28;
+		view i5 = _r29;
+		view i6 = _r30;
+		view i7 = _r31;
+		// 2.1.2. специальные r-регистры
+		// 2.1.2.1. регистры управления/статуса блока целочисленной арифметики
+		// 2.1.2.1.1. счетчики операций
+		view pc = _pc;
+		view npc = _npc;
+		// 2.1.2.1.2. регистр Y 32-битного умножения/деления
+		view y = _y;
+		// 2.1.3. f-регистры
+		view f0 = _f0;
+		view f1 = _f1;
+		view f2 = _f2;
+		view f3 = _f3;
+		view f4 = _f4;
+		view f5 = _f5;
+		view f6 = _f6;
+		view f7 = _f7;
+		view f8 = _f8;
+		view f9 = _f9;
+		view f10 = _f10;
+		view f11 = _f11;
+		view f12 = _f12;
+		view f13 = _f13;
+		view f14 = _f14;
+		view f15 = _f15;
+		view f16 = _f16;
+		view f17 = _f17;
+		view f18 = _f18;
+		view f19 = _f19;
+		view f20 = _f20;
+		view f21 = _f21;
+		view f22 = _f22;
+		view f23 = _f23;
+		view f24 = _f24;
+		view f25 = _f25;
+		view f26 = _f26;
+		view f27 = _f27;
+		view f28 = _f28;
+		view f29 = _f29;
+		view f30 = _f30;
+		view f31 = _f31;
+		view f32 = _f32;
+		view f34 = _f34;
+		view f36 = _f36;
+		view f38 = _f38;
+		view f40 = _f40;
+		view f42 = _f42;
+		view f44 = _f44;
+		view f46 = _f46;
+		view f48 = _f48;
+		view f50 = _f50;
+		view f52 = _f52;
+		view f54 = _f54;
+		view f56 = _f56;
+		view f58 = _f58;
+		view f60 = _f60;
+		view f62 = _f62;
+		// 2.2. привилегированные регистры
+		// 2.2.1. PSTATE
+		view pstate = _pstate;
+		view pid1 = _pstate[11];
+		view pid0 = _pstate[10];
+		view cle = _pstate[9];
+		view tle = _pstate[8];
+		view mm = _pstate[6..7];
+		view red = _pstate[5];
+		view pef = _pstate[5];
+		view am = _pstate[3];
+		view priv = _pstate[2];
+		view ie = _pstate[1];
+		view ag = _pstate[0];
+		// 2.2.2. регистр trap-уровня
+		view tl = _tl;
+		// 2.2.3. регистр уровня прерываний
+		view pil = _pil;
+		// 2.2.4. траповые счетчики операций
+		view tpc = _tpc;
+		// 2.2.5. траповые счтетчики следующей операции
+		view tnpc = _tnpc;
+		// 2.2.6. регистр типа трапа
+		view tt = _tt;
+		// 2.2.7. регистр базового адреса трапов
+		view tba = _tba;
+		// 2.2.8. регистр версии
+		view ver = _ver;
+		// 2.2.9. регистры состояния регистровых окон
+		// 2.2.9.1. указатель на текущее окон
+		view cwp = _cwp;
+		// 2.2.9.2. регистр сохраняемых окон
+		view cansave = _cansave;
+		// 2.2.9.3. регистр восстанавливаемых окон 
+		view canrestore = _canrestore;
+		// 2.2.9.4. регистр других окон
+		view otherwin = _otherwin;
+		// 2.2.9.5. регистр состояния окон
+		view wstate = _wstate;
+		// 2.2.9.6. регистр чистых окон
+		view cleanwin = _cleanwin;
+
+	instructions:
+		// 1. кодировки
+		// 1.1. кодировки непосредственных операндов
+		encode imm13 field = immediate[13] data;
+		// 1.2. кодировки параметров
+		encode disp30 field = immediate[30] displacement;
+		// 1.3. кодировки адресных операндов
+		encode r_reg field = register
+			{
+			r0 = 00000,
+			r1 = 00001,
+			r2 = 00010,
+			r3 = 00011,
+			r4 = 00100,
+			r5 = 00101,
+			r6 = 00110,
+			r7 = 00111,
+			r8 = 01000,
+			r9 = 01001,
+			r10 = 01010,
+			r11 = 01011,
+			r12 = 01100,
+			r13 = 01101,
+			r14 = 01110,
+			r15 = 01111,
+			r16 = 10000,
+			r17 = 10001,
+			r18 = 10010,
+			r19 = 10011,
+			r20 = 10100,
+			r21 = 10101,
+			r22 = 10110,
+			r23 = 10111,
+			r24 = 11000,
+			r25 = 11001,
+			r26 = 11010,
+			r27 = 11011,
+			r28 = 11100,
+			r29 = 11101,
+			r30 = 11110,
+			r31 = 11111,
+			g0 = 00000,
+			g1 = 00001,
+			g2 = 00010,
+			g3 = 00011,
+			g4 = 00100,
+			g5 = 00101,
+			g6 = 00110,
+			g7 = 00111,
+			o0 = 01000,
+			o1 = 01001,
+			o2 = 01010,
+			o3 = 01011,
+			o4 = 01100,
+			o5 = 01101,
+			o6 = 01110,
+			o7 = 01111,
+			l0 = 10000,
+			l1 = 10001,
+			l2 = 10010,
+			l3 = 10011,
+			l4 = 10100,
+			l5 = 10101,
+			l6 = 10110,
+			l7 = 10111,
+			i0 = 11000,
+			i1 = 11001,
+			i2 = 11010,
+			i3 = 11011,
+			i4 = 11100,
+			i5 = 11101,
+			i6 = 11110,
+			i7 = 11111
+			};
+		encode f_reg_single field = register
+			{
+			f0 = 00000,
+			f1 = 00001,
+			f2 = 00010,
+			f3 = 00011,
+			f4 = 00100,
+			f5 = 00101,
+			f6 = 00110,
+			f7 = 00111,
+			f8 = 01000,
+			f9 = 01001,
+			f10 = 01010,
+			f11 = 01011,
+			f12 = 01100,
+			f13 = 01101,
+			f14 = 01110,
+			f15 = 01111,
+			f16 = 10000,
+			f17 = 10001,
+			f18 = 10010,
+			f19 = 10011,
+			f20 = 10100,
+			f21 = 10101,
+			f22 = 10110,
+			f23 = 10111,
+			f24 = 11000,
+			f25 = 11001,
+			f26 = 11010,
+			f27 = 11011,
+			f28 = 11100,
+			f29 = 11101,
+			f30 = 11110,
+			f31 = 11111
+			};
+		encode f_reg_double field = register
+			{
+			f0 = 00000,
+			f2 = 00001,
+			f4 = 00010,
+			f6 = 00011,
+			f8 = 00100,
+			f10 = 00101,
+			f12 = 00110,
+			f14 = 00111,
+			f16 = 01000,
+			f18 = 01001,
+			f20 = 01010,
+			f22 = 01011,
+			f24 = 01100,
+			f26 = 01101,
+			f28 = 01110,
+			f30 = 01111,
+			f32 = 10000,
+			f34 = 10001,
+			f36 = 10010,
+			f38 = 10011,
+			f40 = 10100,
+			f42 = 10101,
+			f44 = 10110,
+			f46 = 10111,
+			f48 = 11000,
+			f50 = 11001,
+			f52 = 11010,
+			f54 = 11011,
+			f56 = 11100,
+			f58 = 11101,
+			f60 = 11110,
+			f62 = 11111
+			};
+		encode f_reg_quad field = register
+			{
+			f0 = 00000,
+			f4 = 00001,
+			f8 = 00010,
+			f12 = 00011,
+			f16 = 00100,
+			f20 = 00101,
+			f24 = 00110,
+			f28 = 00111,
+			f32 = 01000,
+			f36 = 01001,
+			f40 = 01010,
+			f44 = 01011,
+			f48 = 01100,
+			f52 = 01101,
+			f56 = 01110,
+			f60 = 01111
+			};
+		// 2. описания инструкций
+		// 2.1. инструкции формата 1 (op = 1)
+		instruction call = 
+			{
+			01,
+			disp30 as disp30
+			}
+			{};
+		// 2.2. инструкции формата 2 (op = 0)
+		// 2.3. инструкции формата 3 (op = 2 or 3)
+		// 2.3.1. целочисленное сложение
+		instruction add_i0 = 
+			{
+			10, 
+			r_reg as rd, 
+			000000, 
+			r_reg as rs1, 
+			0, 
+			00000000, 
+			r_reg as rs2
+			}
+			{};
+		instruction add_i1 =
+			{
+			10,
+			r_reg as rd,
+			000000,
+			r_reg as rs1,
+			1,
+			imm13 as simm13
+			}
+			{};
+		instruction addcc_i0 = 
+			{
+			10, 
+			r_reg as rd, 
+			010000, 
+			r_reg as rs1, 
+			0, 
+			00000000, 
+			r_reg as rs2
+			}
+			{};
+		instruction addcc_i1 =
+			{
+			10,
+			r_reg as rd,
+			010000,
+			r_reg as rs1,
+			1,
+			imm13 as simm13
+			}
+			{};
+		instruction addc_i0 = 
+			{
+			10, 
+			r_reg as rd, 
+			001000, 
+			r_reg as rs1, 
+			0, 
+			00000000, 
+			r_reg as rs2
+			}
+			{};
+		instruction addc_i1 =
+			{
+			10,
+			r_reg as rd,
+			001000,
+			r_reg as rs1,
+			1,
+			imm13 as simm13
+			}
+			{};
+		instruction addccc_i0 = 
+			{
+			10, 
+			r_reg as rd, 
+			011000, 
+			r_reg as rs1, 
+			0, 
+			00000000, 
+			r_reg as rs2
+			}
+			{};
+		instruction addccc_i1 =
+			{
+			10,
+			r_reg as rd,
+			011000,
+			r_reg as rs1,
+			1,
+			imm13 as simm13
+			}
+			{};
+		// 2.3.2. нецелочисленные сложение и вычитание
+		instruction fadds =
+			{
+			10,
+			f_reg_single as rd,
+			110100,
+			f_reg_single as rs1,
+			001000001,
+			f_reg_single as rs2
+			}
+			{};
+		instruction faddd =
+			{
+			10,
+			f_reg_double as rd,
+			110100,
+			f_reg_double as rs1,
+			001000010,
+			f_reg_double as rs2
+			}
+			{};
+		instruction faddq =
+			{
+			10,
+			f_reg_quad as rd,
+			110100,
+			f_reg_quad as rs1,
+			001000011,
+			f_reg_quad as rs2
+			}
+			{};
+		instruction fsubs =
+			{
+			10,
+			f_reg_single as rd,
+			110100,
+			f_reg_single as rs1,
+			001000101,
+			f_reg_single as rs2
+			}
+			{};
+		instruction fsubd =
+			{
+			10,
+			f_reg_double as rd,
+			110100,
+			f_reg_double as rs1,
+			001000110,
+			f_reg_double as rs2
+			}
+			{};
+		instruction fsubq =
+			{
+			10,
+			f_reg_quad as rd,
+			110100,
+			f_reg_quad as rs1,
+			001000111,
+			f_reg_quad as rs2
+			}
+			{};
+
+	mnemonics:
+		// 1. Форматы
+		format par_n_1 is "{1}";
+		format par_n_2 is "{1}, {2}";
+		format par_n_3 is "{1}, {2}, {3}";
+
+		// 2. Мнемоники операций
+		// 2.1. инструкции формата 1
+		// 2.1.1. call
+		mnemonic call for call(disp30) par_n_1;
+		// 2.3. инструкции формата 3
+		// 2.3.1. целочисленное сложение
+		mnemonic add for add_i0(rd, rs1, rs2) par_n_3;
+		mnemonic add for add_i1(rd, rs1, simm13) par_n_3;
+		mnemonic addcc for addcc_i0(rd, rs1, rs2) par_n_3;
+		mnemonic addcc for addcc_i1(rd, rs1, simm13) par_n_3;
+		mnemonic addc for addc_i0(rd, rs1, rs2) par_n_3;
+		mnemonic addc for addc_i1(rd, rs1, simm13) par_n_3;
+		mnemonic addccc for addccc_i0(rd, rs1, rs2) par_n_3;
+		mnemonic addccc for addccc_i1(rd, rs1, simm13) par_n_3;
+		// 2.3.2. нецелочисленные сложение и вычитание
+		mnemonic fadds for fadds(rs1, rs2, rd) par_n_3;
+		mnemonic faddd for faddd(rs1, rs2, rd) par_n_3;
+		mnemonic faddq for faddq(rs1, rs2, rd) par_n_3;
+		mnemonic fsubs for fsubs(rs1, rs2, rd) par_n_3;
+		mnemonic fsubd for fsubd(rs1, rs2, rd) par_n_3;
+		mnemonic fsubq for fsubq(rs1, rs2, rd) par_n_3;
+}
